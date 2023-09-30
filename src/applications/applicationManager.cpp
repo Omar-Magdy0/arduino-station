@@ -41,12 +41,17 @@ int8_t appMenuIndexer(int8_t num){
 
 int8_t menuIndex = 0;
 bool mainMenuJustOpen = true,appRunning = false;
+int8_t gestureType;
+
+
 
     textBox Box1 = textBox(menuApps[appMenuIndexer(menuIndex - 1)].name(),0,0);
     textBox Box2 = textBox(menuApps[appMenuIndexer(menuIndex)].name(),0,0);
     textBox Box3 = textBox(menuApps[appMenuIndexer(menuIndex + 1)].name(),0,0);
 
 void applicationManager(){
+gestureType = gesture();
+
 if (mainMenuJustOpen){
     display.clearDisplay();
     display.drawRect(0,22,128,20,WHITE);
@@ -62,9 +67,14 @@ if (mainMenuJustOpen){
 }
  
 
-if (appRunning){menuApps[menuIndex]}
+if (appRunning){menuApps[menuIndex].runApp();
+if(gestureType == veryLongClick){menuApps[menuIndex].closeApp();appRunning = false;}
+
+
+
+}
 else if(!appRunning){
-    int8_t gestureType = gesture();
+
 if (gestureType == shortClick){
 menuIndex++;if(menuIndex > (appMenuSize - 1)){menuIndex = 0;}
 Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
@@ -183,7 +193,6 @@ void maintenance(){
     display.clearDisplay();
     display.drawBitmap(0,0,maintenanceScreen,128,64,WHITE);
     display.display();
-    if 
 }
 
 

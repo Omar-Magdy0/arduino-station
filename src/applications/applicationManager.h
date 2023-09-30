@@ -1,13 +1,12 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
-
 #include <Arduino.h>
 
 //Define HOW YOUR PINS HERE AND GIVE THEM PURPOSE ON BOOTLOADER OR INDIVIDUAL APPLICATION FILES
 // (PIN 13 AND PIN 17 UNIQUE FOR BUTTON AND POT)
 #define mainButton 13
 #define mainPot 17
-
+ 
 void maintenance();
 extern bool mainMenuJustOpen,appRunning;
 
@@ -25,6 +24,7 @@ void closeApp(){appRunning = false;}
 };
 
 extern application menuApps[];
+extern int8_t gestureType;
 
 void applicationManager();
 void bootLoader();
