@@ -1,7 +1,7 @@
 # arduino-station
 
 *BIGANT is proud to introduce the ATSTATION* 
-a mini General purpose control with a screen,button and a potentionmeter(more or less are optional) for basic user interface where you can have your own code and programs that run on the MCU just like an arduino . 
+a mini General purpose controller with a screen,button and a potentionmeter(more or less are optional) for basic user interface where you can have your own code and programs that run on the MCU just like an arduino . 
 
 *THE code*
 WELL here we have a base code where you can have your multiple programs run on the MCU easily because We have included what we call an applicationManager() that manages the functionalies you are going to add and
