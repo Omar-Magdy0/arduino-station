@@ -1,11 +1,5 @@
-#include <SPI.h>
-#include <Wire.h>
-#include "graphics/display.h"
 #include <Arduino.h>
-#include "pin_dynamics/pin_dynamics.h"
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include "applications/applicationManager.h"
+#include <applicationManager.h>
  
 
 void setup() {

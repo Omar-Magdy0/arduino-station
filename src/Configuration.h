@@ -2,7 +2,11 @@
 #ifndef APPLICATIONMENUCONF_H
 #define APPLICATIONMENUCONF_H
 
-#include "applicationManager.h"
+#include <applicationManager.h>
+
+extern void motivational();
+
+
 
 
 #define CUSTOMMAINMENU
@@ -12,7 +16,7 @@
 #define App2 application("DC DIMMER",maintenance)
 #define App3 application("Oscilloscope",maintenance)
 #define App4 application("3dFilament",maintenance)
-#define App5 application("Motivation!!",maintenance)
+#define App5 application("Motivation!!",motivational)
 #define App6 application("Hot Air Gun",maintenance)
 
 application menuApps[appMenuSize] = {

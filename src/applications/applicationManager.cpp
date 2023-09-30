@@ -1,8 +1,8 @@
-#include "applicationManager.h"
-#include "../graphics/display.h"
-#include "../pin_dynamics/pin_dynamics.h"
-#include "Arduino.h"
-#include "Configuration.h"
+#include <applicationManager.h>
+#include <display.h>
+#include <pin_dynamics.h>
+#include <Arduino.h>
+#include <Configuration.h>
 // Menu Grid is like that 
 // 1st box 128x20px 
 // 2nd box 128x20px (has white rectangle)
@@ -67,12 +67,13 @@ if (mainMenuJustOpen){
 }
  
 
-if (appRunning){menuApps[menuIndex].runApp();
-if(gestureType == veryLongClick){menuApps[menuIndex].closeApp();appRunning = false;}
-
-
-
+if (appRunning){
+	menuApps[menuIndex].runApp();
+	if(gestureType == veryLongClick){menuApps[menuIndex].closeApp();appRunning = false;mainMenuJustOpen = true;
+	}
 }
+
+
 else if(!appRunning){
 
 if (gestureType == shortClick){

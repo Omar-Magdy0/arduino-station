@@ -1,6 +1,6 @@
-#include "pin_dynamics.h"
+#include <pin_dynamics.h>
 #include <Arduino.h>
-#include "../applications/applicationManager.h"
+#include <applicationManager.h>
 
 
 
@@ -17,7 +17,7 @@ unsigned long startTime;
 uint8_t debounceWait = 50;
 
 
-#define maxShortClickTime 200
+#define maxShortClickTime 400
 #define maxLongClickTime 2000
 
 

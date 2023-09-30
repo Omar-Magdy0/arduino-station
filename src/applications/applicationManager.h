@@ -1,6 +1,9 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 #include <Arduino.h>
+#include <display.h>
+#include <pin_dynamics.h>
+
 
 //Define HOW YOUR PINS HERE AND GIVE THEM PURPOSE ON BOOTLOADER OR INDIVIDUAL APPLICATION FILES
 // (PIN 13 AND PIN 17 UNIQUE FOR BUTTON AND POT)
@@ -9,8 +12,6 @@
  
 void maintenance();
 extern bool mainMenuJustOpen,appRunning;
-
-
 
 class application{
 private:
