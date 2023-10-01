@@ -93,7 +93,7 @@ display.clearDisplay();
 display.display();
 }
 
-else if (gestureType == longClick){
+else if (gestureType == doubleClick){
 menuIndex--;if(menuIndex < (0)){menuIndex = appMenuSize -1;}
 Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
 Box2.text = menuApps[appMenuIndexer(menuIndex)].name();

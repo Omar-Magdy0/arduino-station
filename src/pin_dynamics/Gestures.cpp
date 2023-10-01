@@ -40,7 +40,7 @@ if((digitalRead(mainButton)==HIGH)){
     if (timeOfClick < maxShortClickTime){clickytype = shortClick;}
     else if ((timeOfClick >= maxShortClickTime)&&(timeOfClick <= maxLongClickTime)){clickytype = longClick;}
     else if (timeOfClick > maxLongClickTime){clickytype = veryLongClick;}
-startTime = millis();currentState = debounceTime;Serial.println(clickytype);return clickytype;
+startTime = millis();currentState = debounceTime;/*Serial.println(clickytype)*/;return clickytype;
 }
 break;
 
@@ -53,24 +53,22 @@ return 0;
 }
 
 
-
 unsigned long click1Time,click2Time = 0;
 
-uint16_t doubleClickTimeout = 1000;
+uint16_t doubleClickTimeout = 300;
 
 int8_t gestureHandler(){
 int8_t clickType = clickHandler();
 
 if(clickType == shortClick){
-
 if(click1Time == 0){click1Time = currentTime;}
 else if (click2Time == 0){click2Time = currentTime;}
-
-if ((currentTime - click1Time) >= doubleClickTimeout){Serial.print(shortClick);click1Time = 0;click2Time = 0;return shortClick;}
-else if ((click2Time - click1Time) < doubleClickTimeout){Serial.print(doubleClick);click1Time = 0;click2Time = 0;return doubleClick;}
-
 }
+if (((currentTime - click1Time) >= doubleClickTimeout)&&(click1Time != 0)){Serial.print(shortClick);click1Time = 0;click2Time = 0;return shortClick;}
+else if (((click2Time - click1Time) < doubleClickTimeout)&&(click2Time != 0)){Serial.print(doubleClick);click1Time = 0;click2Time = 0;return doubleClick;}
 
+if(clickType == longClick){return longClick;}
+if(clickType == veryLongClick){return veryLongClick;}
 
 
 

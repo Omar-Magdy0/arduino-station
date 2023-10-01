@@ -7,7 +7,7 @@
 #define longClick 2
 #define veryLongClick 3
 #define doubleClick 4
-#define longShort 5
+
 
 
 int8_t gestureHandler();
