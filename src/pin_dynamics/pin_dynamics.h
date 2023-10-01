@@ -10,7 +10,7 @@
 #define longShort 5
 
 
-int8_t gesture();
+int8_t gestureHandler();
 
 
 #endif

@@ -1,7 +1,4 @@
 #include <applicationManager.h>
-#include <display.h>
-#include <pin_dynamics.h>
-#include <Arduino.h>
 #include <Configuration.h>
 // Menu Grid is like that 
 // 1st box 128x20px 
@@ -45,16 +42,28 @@ int8_t gestureType;
 
 
 
-    textBox Box1 = textBox(menuApps[appMenuIndexer(menuIndex - 1)].name(),0,0);
-    textBox Box2 = textBox(menuApps[appMenuIndexer(menuIndex)].name(),0,0);
-    textBox Box3 = textBox(menuApps[appMenuIndexer(menuIndex + 1)].name(),0,0);
 
 void applicationManager(){
-gestureType = gesture();
+
+
+gestureType = gestureHandler();
+
+if (appRunning){
+	menuApps[menuIndex].runApp();
+	if(gestureType == veryLongClick){menuApps[menuIndex].closeApp();appRunning = false;mainMenuJustOpen = true;
+	}
+}
+else if(!appRunning){
+	    textBox Box1 = textBox("",0,0);
+    	textBox Box2 = textBox("",0,0);
+    	textBox Box3 = textBox("",0,0);
 
 if (mainMenuJustOpen){
+	Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
+	Box2.text = menuApps[appMenuIndexer(menuIndex)].name();
+	Box3.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
     display.clearDisplay();
-    display.drawRect(0,22,128,20,WHITE);
+	display.drawRect(0,22,128,20,WHITE);
     display.drawRect(1,23,126,18,WHITE);
     Box1.textRectCenterer(0,2,128,20);
     Box2.textRectCenterer(0,22,128,20);
@@ -66,15 +75,6 @@ if (mainMenuJustOpen){
     mainMenuJustOpen = false;
 }
  
-
-if (appRunning){
-	menuApps[menuIndex].runApp();
-	if(gestureType == veryLongClick){menuApps[menuIndex].closeApp();appRunning = false;mainMenuJustOpen = true;
-	}
-}
-
-
-else if(!appRunning){
 
 if (gestureType == shortClick){
 menuIndex++;if(menuIndex > (appMenuSize - 1)){menuIndex = 0;}

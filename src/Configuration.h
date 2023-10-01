@@ -2,7 +2,7 @@
 #ifndef APPLICATIONMENUCONF_H
 #define APPLICATIONMENUCONF_H
 
-#include <applicationManager.h>
+#include "applicationManager.h"
 
 
 extern void motivational();
