@@ -173,13 +173,7 @@ const unsigned char ATSTATION [] PROGMEM = {
 };
 
 
-
-
-
-
-
-
-void bootLoader(){
+void defaultBootLoader(){
 
 pinMode(mainButton,INPUT_PULLUP); pinMode(mainPot,INPUT); 
  checkForScreen();
@@ -204,3 +198,4 @@ display.display();
 delay(3000);
 
 }
+

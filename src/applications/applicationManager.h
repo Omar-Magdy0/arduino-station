@@ -28,7 +28,8 @@ extern application menuApps[];
 extern int8_t gestureType;
 
 void applicationManager();
-void bootLoader();
+void defaultBootLoader();
+
 
 #endif
 
