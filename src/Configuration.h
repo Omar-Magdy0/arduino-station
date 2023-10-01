@@ -16,7 +16,7 @@ extern void motivational();
 #define App1 application("AC DIMMER",maintenance)
 #define App2 application("DC DIMMER",maintenance)
 #define App3 application("Oscilloscope",maintenance)
-#define App4 application("3dFilament",maintenance)
+#define App4 application("3DFilament",maintenance)
 #define App5 application("Motivation!!",motivational)
 #define App6 application("Hot Air Gun",maintenance)
 
