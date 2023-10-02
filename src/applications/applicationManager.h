@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <display.h>
 #include <pin_dynamics.h>
+#include <FlashStringTable.h>
 
 
 
@@ -26,6 +27,7 @@ void closeApp(){appRunning = false;}
 };
 
 
+extern bool appJustRun;
 extern application menuApps[];
 extern int8_t gestureType;
  

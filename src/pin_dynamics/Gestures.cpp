@@ -19,8 +19,8 @@ unsigned long startTime;
 uint8_t debounceWait = 50;
 
 
-#define maxShortClickTime 400
-#define maxLongClickTime 2000
+#define maxShortClickTime 300
+#define maxLongClickTime 3000
 
 
 int8_t clickHandler(){

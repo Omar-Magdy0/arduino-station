@@ -6,7 +6,7 @@
 
 
 extern void motivational();
-
+extern void hotAirGun();
 
 
 
@@ -18,7 +18,7 @@ extern void motivational();
 #define App3 application("Oscilloscope",maintenance)
 #define App4 application("3DFilament",maintenance)
 #define App5 application("Motivation!!",motivational)
-#define App6 application("Hot Air Gun",maintenance)
+#define App6 application("Hot Air Gun",hotAirGun)
 
 application menuApps[appMenuSize] = {
 App1,

@@ -37,7 +37,7 @@ int8_t appMenuIndexer(int8_t num){
 }
 
 int8_t menuIndex = 0;
-bool mainMenuJustOpen = true,appRunning = false;
+bool mainMenuJustOpen = true,appRunning = false,appJustRun = false;
 int8_t gestureType;
 
 
@@ -65,12 +65,12 @@ if (mainMenuJustOpen){
     display.clearDisplay();
 	display.drawRect(0,22,128,20,WHITE);
     display.drawRect(1,23,126,18,WHITE);
-    Box1.textRectCenterer(0,2,128,20);
-    Box2.textRectCenterer(0,22,128,20);
-    Box3.textRectCenterer(0,42,128,20);
-    Box1.textDisplaySans(WHITE);
-    Box2.textDisplaySans(WHITE);
-    Box3.textDisplaySans(WHITE);
+    Box1.textRectCenterer(0,2,128,20,1);
+    Box2.textRectCenterer(0,22,128,20,1);
+    Box3.textRectCenterer(0,42,128,20,1);
+    Box1.textDisplaySans(WHITE,1);
+    Box2.textDisplaySans(WHITE,1);
+    Box3.textDisplaySans(WHITE,1);
     display.display();
     mainMenuJustOpen = false;
 }
@@ -84,12 +84,12 @@ Box3.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
 display.clearDisplay();
     display.drawRect(0,22,128,20,WHITE);
     display.drawRect(1,23,126,18,WHITE);
-    Box1.textRectCenterer(0,2,128,20);
-    Box2.textRectCenterer(0,22,128,20);
-    Box3.textRectCenterer(0,42,128,20);
-    Box1.textDisplaySans(WHITE);
-    Box2.textDisplaySans(WHITE);
-    Box3.textDisplaySans(WHITE);
+    Box1.textRectCenterer(0,2,128,20,1);
+    Box2.textRectCenterer(0,22,128,20,1);
+    Box3.textRectCenterer(0,42,128,20,1);
+    Box1.textDisplaySans(WHITE,1);
+    Box2.textDisplaySans(WHITE,1);
+    Box3.textDisplaySans(WHITE,1);
 display.display();
 }
 
@@ -101,18 +101,18 @@ Box3.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
 display.clearDisplay();
     display.drawRect(0,22,128,20,WHITE);
     display.drawRect(1,23,126,18,WHITE);
-    Box1.textRectCenterer(0,2,128,20);
-    Box2.textRectCenterer(0,22,128,20);
-    Box3.textRectCenterer(0,42,128,20);
-    Box1.textDisplaySans(WHITE);
-    Box2.textDisplaySans(WHITE);
-    Box3.textDisplaySans(WHITE);
+    Box1.textRectCenterer(0,2,128,20,1);
+    Box2.textRectCenterer(0,22,128,20,1);
+    Box3.textRectCenterer(0,42,128,20,1);
+    Box1.textDisplaySans(WHITE,1);
+    Box2.textDisplaySans(WHITE,1);
+    Box3.textDisplaySans(WHITE,1);
 display.display();
 }
 
 
 else if (gestureType == veryLongClick){
-menuApps[menuIndex].runApp();Serial.print("appprunning");
+menuApps[menuIndex].runApp();appJustRun = true;Serial.print("appprunning");
 }
 }
 }
