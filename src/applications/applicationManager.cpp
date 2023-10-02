@@ -68,9 +68,9 @@ if (mainMenuJustOpen){
     Box1.textRectCenterer(0,2,128,20,1);
     Box2.textRectCenterer(0,22,128,20,1);
     Box3.textRectCenterer(0,42,128,20,1);
-    Box1.textDisplaySans(WHITE,1);
-    Box2.textDisplaySans(WHITE,1);
-    Box3.textDisplaySans(WHITE,1);
+    Box1.textDisplaySans(WHITE,0);
+    Box2.textDisplaySans(WHITE,0);
+    Box3.textDisplaySans(WHITE,0);
     display.display();
     mainMenuJustOpen = false;
 }
@@ -87,9 +87,9 @@ display.clearDisplay();
     Box1.textRectCenterer(0,2,128,20,1);
     Box2.textRectCenterer(0,22,128,20,1);
     Box3.textRectCenterer(0,42,128,20,1);
-    Box1.textDisplaySans(WHITE,1);
-    Box2.textDisplaySans(WHITE,1);
-    Box3.textDisplaySans(WHITE,1);
+    Box1.textDisplaySans(WHITE,0);
+    Box2.textDisplaySans(WHITE,0);
+    Box3.textDisplaySans(WHITE,0);
 display.display();
 }
 
@@ -104,9 +104,9 @@ display.clearDisplay();
     Box1.textRectCenterer(0,2,128,20,1);
     Box2.textRectCenterer(0,22,128,20,1);
     Box3.textRectCenterer(0,42,128,20,1);
-    Box1.textDisplaySans(WHITE,1);
-    Box2.textDisplaySans(WHITE,1);
-    Box3.textDisplaySans(WHITE,1);
+    Box1.textDisplaySans(WHITE,0);
+    Box2.textDisplaySans(WHITE,0);
+    Box3.textDisplaySans(WHITE,0);
 display.display();
 }
 
