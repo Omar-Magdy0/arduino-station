@@ -10,7 +10,7 @@
 //Define HOW YOUR PINS HERE AND GIVE THEM PURPOSE ON BOOTLOADER OR INDIVIDUAL APPLICATION FILES
 // (PIN 13 AND PIN 17 UNIQUE FOR BUTTON AND POT)
 #define mainButton 13
-#define mainPot 17
+#define mainPot 14
  
 void maintenance();
 extern bool mainMenuJustOpen,appRunning;
@@ -30,11 +30,10 @@ void closeApp(){appRunning = false;}
 extern bool appJustRun;
 extern application menuApps[];
 extern int8_t gestureType;
- 
+extern int16_t controlPot;
+extern textBox Box1;
 void applicationManager();
 void defaultBootLoader();
-
-
 #endif
 
 

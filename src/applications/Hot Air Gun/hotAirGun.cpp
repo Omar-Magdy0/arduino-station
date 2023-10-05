@@ -3,108 +3,141 @@
 #include <stdio.h>
 
 
-#define AirGunNTC A2
+#define AirGunNTC 
 #define Fan 10
 #define Heater 11
-
-
+int8_t fanSpeed = 0;
+bool fanOn = false,heatingElementOn = false;
+int8_t pageSettingsIndex = 1;
+int16_t targetTemp = 0;
 BEGIN_FLASH_STRING_TABLE(hotAirGuntxt)
-/*0*/    ADD_FLASH_STRING("== Hot AIR GUN ==")
+/*0*/    ADD_FLASH_STRING("Hot AIR GUN")
 /*1*/    ADD_FLASH_STRING("* Temperature *")
 /*2*/    ADD_FLASH_STRING("Current")
 /*3*/    ADD_FLASH_STRING("Target")
-/*4*/    ADD_FLASH_STRING("")
-
-
+/*4*/    ADD_FLASH_STRING("Fan")
+/*5*/    ADD_FLASH_STRING("Heating Element")
 
 
 END_FLASH_STRING_TABLE()
 
 
+
+
 void hotAirGunStaticDisplay_1(){
-textBox BOX1 = textBox("",0,0),
-        BOX2 = textBox("",0,0),
-        BOX3 = textBox("",0,0),
-        BOX4 = textBox("",0,0);
-BOX1.text = hotAirGuntxt[0];
-BOX2.text = hotAirGuntxt[1];
-BOX3.text = hotAirGuntxt[2];
-BOX4.text = hotAirGuntxt[3];
 display.clearDisplay();
-BOX1.textRectCenterer(0,0,128,14,1);
+//First text
+Box1.text = hotAirGuntxt[0];
+Box1.textRectCenterer(0,0,128,16,1);
+Box1.textDisplaySans(WHITE,0);
+//second text
+Box1.text = hotAirGuntxt[1];
+Box1.textRectCenterer(0,14,128,14,1);
+Box1.textDisplaySans(WHITE,0);
+//third text
+Box1.text = hotAirGuntxt[2];
+Box1.textRectCenterer(0,28,64,14,1);
+Box1.textDisplaySans(WHITE,0);
+//fourth text
+Box1.text = hotAirGuntxt[3];
+Box1.textRectCenterer(64,28,64,14,1);
+Box1.textDisplaySans(WHITE,0);
+//end text
 display.drawRect(0,0,128,14,WHITE);
-BOX2.textRectCenterer(0,14,128,14,1);
-BOX3.textRectCenterer(0,28,64,14,1);
 display.drawRect(0,28,64,36,WHITE);
-BOX4.textRectCenterer(64,28,64,14,1);
 display.drawRect(64,28,64,36,WHITE);
-BOX1.textDisplaySans(WHITE,0);
-BOX2.textDisplaySans(WHITE,0);
-BOX3.textDisplaySans(WHITE,0);
-BOX4.textDisplaySans(WHITE,0);
 display.display();
 }
 
 
 void dynamicDisplay_1(int16_t currentTemp,int16_t targetTemp){
-textBox BOX1 = textBox("",0,0),
-        BOX2 = textBox("",0,0);
-char numString[5];
-char Celcius[5] = {'\367','C'};
-sprintf(numString,"%d",currentTemp);
-strcat(numString,Celcius);
-BOX1.text = numString;
-BOX1.textRectCenterer(0,40,64,22,1);
-sprintf(numString,"%d",targetTemp);
-strcat(numString,Celcius);
-BOX2.text = numString;
-BOX2.textRectCenterer(64,40,64,22,1);
 display.fillRect(0,40,63,22,BLACK);
 display.fillRect(65,40,63,22,BLACK);
-BOX1.textDisplaySans(WHITE,0);
-BOX2.textDisplaySans(WHITE,0);
+char numString[5];
+char Celcius[5] = {'\367','C'};
+//first text
+sprintf(numString,"%d",currentTemp);
+strcat(numString,Celcius);
+Box1.text = numString;
+Box1.textRectCenterer(0,40,64,22,1);
+Box1.textDisplaySans(WHITE,0);
+//second text
+sprintf(numString,"%d",targetTemp);
+strcat(numString,Celcius);
+Box1.text = numString;
+Box1.textRectCenterer(64,40,64,22,1);
+Box1.textDisplaySans(WHITE,0);
+//end text
 display.display();
 }
 
 
-void dynamicDisplay_1(int16_t currentTemp,int16_t targetTemp){
-textBox BOX1 = textBox("",0,0),
-        BOX2 = textBox("",0,0);
-char numString[5];
-char Celcius[5] = {'\367','C'};
-sprintf(numString,"%d",currentTemp);
-strcat(numString,Celcius);
-BOX1.text = numString;
-BOX1.textRectCenterer(0,40,64,22,1);
-sprintf(numString,"%d",targetTemp);
-strcat(numString,Celcius);
-BOX2.text = numString;
-BOX2.textRectCenterer(64,40,64,22,1);
-display.fillRect(0,40,63,22,BLACK);
-display.fillRect(65,40,63,22,BLACK);
-BOX1.textDisplaySans(WHITE,0);
-BOX2.textDisplaySans(WHITE,0);
+void hotAirGunStaticDisplay_2(){
+display.clearDisplay();
+//first text
+Box1.text = hotAirGuntxt[4];
+Box1.textRectCenterer(0,0,128,14,1);
+Box1.textDisplaySans(WHITE,0);
+//second text
+Box1.text = hotAirGuntxt[5];
+Box1.textRectCenterer(0,32,128,14,1);
+Box1.textDisplaySans(WHITE,0);
+// end text
+display.drawRect(0,0,128,14,WHITE);
+display.drawRect(0,32,128,14,WHITE);
+display.drawLine(63,14,63,32,WHITE);
+display.drawLine(64,14,64,32,WHITE);
+display.display();
+}
+
+void dynamicDisplay_2(){
+display.fillRect(1,15,62,17,BLACK);
+display.fillRect(66,15,62,17,BLACK);
+display.fillRect(1,47,127,17,BLACK);
+//first text
+if(fanOn == true){Box1.text = "ON";}else{Box1.text = "OFF";}
+Box1.textRectCenterer(0,14,64,18,1);
+Box1.textDisplaySans(WHITE,0);
+//second text
+if(heatingElementOn == true){Box1.text = "ON";}else{Box1.text = "OFF";}
+Box1.textRectCenterer(0,46,128,18,1);
+Box1.textDisplaySans(WHITE,0);
+//third text
+char numString[4];
+char perc[2] = {"%"};
+sprintf(numString,"%d",fanSpeed);
+strcat(numString,perc);
+Box1.text = numString;
+Box1.textRectCenterer(64,14,64,18,1);
+Box1.textDisplaySans(WHITE,0);
+//end text
 display.display();
 }
 
 
-int8_t screenNum = 1;
+
+int8_t screenNum = 1;bool editModeOn = false;
 
 void hotAirGun(){
- int16_t FOO = analogRead(A0);
-FOO = (FOO-10)*0.2964   ;
-if(gestureType == longClick){screenNum++;if(screenNum > 2)screenNum = 1;}
-if(appJustRun){INIT_FLASH_STRING_TABLE(hotAirGuntxt);hotAirGunStaticDisplay_1();appJustRun = false;}
+if(gestureType == longClick){screenNum++;if(screenNum > 2)screenNum = 1;
+if(screenNum == 1){hotAirGunStaticDisplay_1();}
+else if (screenNum == 2){hotAirGunStaticDisplay_2();}
+}
+if(appJustRun){INIT_FLASH_STRING_TABLE(hotAirGuntxt);delay(10);appJustRun = false;hotAirGunStaticDisplay_1();}
+
+
+
 if(screenNum == 1){
-    dynamicDisplay_1(30,FOO);
+    dynamicDisplay_1(30,targetTemp);
+    if(gestureType == doubleClick){
+if(editModeOn == false){editModeOn = true;}else{editModeOn = false;}
+     }
+if(editModeOn){targetTemp = (controlPot-10)*0.2964;;}
 }
+    
+
+
 else if(screenNum == 2){
-
-
+     dynamicDisplay_2();
 }
-
-
-
-
-
 }

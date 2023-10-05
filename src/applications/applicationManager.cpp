@@ -26,7 +26,7 @@ App6,
 };
 #endif
 
-
+textBox Box1 = textBox("",0,0);
 
 
 int8_t appMenuIndexer(int8_t num){
@@ -39,13 +39,13 @@ int8_t appMenuIndexer(int8_t num){
 int8_t menuIndex = 0;
 bool mainMenuJustOpen = true,appRunning = false,appJustRun = false;
 int8_t gestureType;
-
+int16_t controlPot;
 
 
 
 void applicationManager(){
 
-
+controlPot = readPot();
 gestureType = gestureHandler();
 
 if (appRunning){
@@ -54,23 +54,24 @@ if (appRunning){
 	}
 }
 else if(!appRunning){
-	    textBox Box1 = textBox("",0,0);
-    	textBox Box2 = textBox("",0,0);
-    	textBox Box3 = textBox("",0,0);
+
+
 
 if (mainMenuJustOpen){
+
+display.clearDisplay();
+
 	Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
-	Box2.text = menuApps[appMenuIndexer(menuIndex)].name();
-	Box3.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
-    display.clearDisplay();
+	Box1.textRectCenterer(0,2,128,20,1);
+	Box1.textDisplaySans(WHITE,0);
+	Box1.text = menuApps[appMenuIndexer(menuIndex)].name();
+	Box1.textRectCenterer(0,22,128,20,1);
+    Box1.textDisplaySans(WHITE,0);
+	Box1.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
+	Box1.textRectCenterer(0,42,128,20,1);
+    Box1.textDisplaySans(WHITE,0);
 	display.drawRect(0,22,128,20,WHITE);
     display.drawRect(1,23,126,18,WHITE);
-    Box1.textRectCenterer(0,2,128,20,1);
-    Box2.textRectCenterer(0,22,128,20,1);
-    Box3.textRectCenterer(0,42,128,20,1);
-    Box1.textDisplaySans(WHITE,0);
-    Box2.textDisplaySans(WHITE,0);
-    Box3.textDisplaySans(WHITE,0);
     display.display();
     mainMenuJustOpen = false;
 }
@@ -78,35 +79,36 @@ if (mainMenuJustOpen){
 
 if (gestureType == shortClick){
 menuIndex++;if(menuIndex > (appMenuSize - 1)){menuIndex = 0;}
-Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
-Box2.text = menuApps[appMenuIndexer(menuIndex)].name();
-Box3.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
 display.clearDisplay();
+Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
+Box1.textRectCenterer(0,2,128,20,1);
+Box1.textDisplaySans(WHITE,0);
+Box1.text = menuApps[appMenuIndexer(menuIndex)].name();
+Box1.textRectCenterer(0,22,128,20,1);
+Box1.textDisplaySans(WHITE,0);
+Box1.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
+Box1.textRectCenterer(0,42,128,20,1);
+Box1.textDisplaySans(WHITE,0);
+
     display.drawRect(0,22,128,20,WHITE);
     display.drawRect(1,23,126,18,WHITE);
-    Box1.textRectCenterer(0,2,128,20,1);
-    Box2.textRectCenterer(0,22,128,20,1);
-    Box3.textRectCenterer(0,42,128,20,1);
-    Box1.textDisplaySans(WHITE,0);
-    Box2.textDisplaySans(WHITE,0);
-    Box3.textDisplaySans(WHITE,0);
 display.display();
 }
 
 else if (gestureType == doubleClick){
 menuIndex--;if(menuIndex < (0)){menuIndex = appMenuSize -1;}
-Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
-Box2.text = menuApps[appMenuIndexer(menuIndex)].name();
-Box3.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
 display.clearDisplay();
+Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
+Box1.textRectCenterer(0,2,128,20,1);
+Box1.textDisplaySans(WHITE,0);
+Box1.text = menuApps[appMenuIndexer(menuIndex)].name();
+Box1.textRectCenterer(0,22,128,20,1);
+Box1.textDisplaySans(WHITE,0);
+Box1.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
+Box1.textRectCenterer(0,42,128,20,1);
+Box1.textDisplaySans(WHITE,0);
     display.drawRect(0,22,128,20,WHITE);
     display.drawRect(1,23,126,18,WHITE);
-    Box1.textRectCenterer(0,2,128,20,1);
-    Box2.textRectCenterer(0,22,128,20,1);
-    Box3.textRectCenterer(0,42,128,20,1);
-    Box1.textDisplaySans(WHITE,0);
-    Box2.textDisplaySans(WHITE,0);
-    Box3.textDisplaySans(WHITE,0);
 display.display();
 }
 

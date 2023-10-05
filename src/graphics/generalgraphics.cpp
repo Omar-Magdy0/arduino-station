@@ -1,7 +1,6 @@
 #include "display.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <Fonts/FreeMono9pt7b.h>
 
 
 
@@ -31,10 +30,9 @@ void textBox::setCursor(uint8_t x,uint8_t y){cursorX = x;cursorY = y;};
 
 
 #define default 0
-#define freeMono 1
 
 void textBox::textDisplaySans(int8_t TEXT_COLOR,int8_t font) {
-  if(font == freeMono){display.setFont(&FreeMono9pt7b);}else{display.setFont();}
+  if(font == 0){display.setFont();}
   display.setCursor(cursorX, cursorY);
   display.setTextSize(1);
   display.setTextColor(TEXT_COLOR);

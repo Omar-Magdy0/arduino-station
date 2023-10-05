@@ -76,7 +76,10 @@ return 0;
 }
 
 
-
+int16_t readPot(){
+int16_t controlPot = analogRead(mainPot);
+return controlPot;
+}
 
 
 

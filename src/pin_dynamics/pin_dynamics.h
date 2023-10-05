@@ -11,6 +11,7 @@
 
 
 int8_t gestureHandler();
+int16_t readPot();
 
 
 #endif
