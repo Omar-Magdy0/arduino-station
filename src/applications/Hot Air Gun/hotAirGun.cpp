@@ -1,11 +1,12 @@
 #include <Arduino.h>
 #include "hotAirGun.h"
 #include <stdio.h>
+#include <FastPID.h>
 
 
-#define AirGunNTC 
+#define AirGunNTC A2
 #define Fan 10
-#define Heater 11
+#define Heater 9
 int8_t fanSpeed = 0;
 bool fanOn = false,heatingElementOn = false;
 int16_t targetTemp = 0;
@@ -114,23 +115,42 @@ Box1.textDisplaySans(WHITE,0);
 display.display();
 }
 
+/*
+void pinsOutput(uint8_t feedbackPin,uint8_t outputPin,int16_t target){
+if(appJustRun){
+}
+}
+*/
+
+
 
 
 int8_t screenNum = 1;
 bool editModeOn = false;
 int8_t pageSettingsIndex = 1;
 
-
-
 void hotAirGun(){
+//toggle display
 if(gestureType == longClick && (!editModeOn) ){screenNum++;if(screenNum > 2)screenNum = 1;
 if(screenNum == 1){hotAirGunStaticDisplay_1();}
 else if (screenNum == 2){hotAirGunStaticDisplay_2();}
 }
-if(appJustRun){INIT_FLASH_STRING_TABLE(hotAirGuntxt);delay(10);appJustRun = false;hotAirGunStaticDisplay_1();}
+//end of toggle display
 
 
+// code to run once HERE
+if(appJustRun){
+     INIT_FLASH_STRING_TABLE(hotAirGuntxt);delay(10);
+     appJustRun = false;hotAirGunStaticDisplay_1();
+       
+         if (myPID.err()) {
+    Serial.println("There is a configuration error!");
+          }
+}
+//end of code once 
 
+
+//display screen one
 if(screenNum == 1){
     dynamicDisplay_1(30,targetTemp);
     if(gestureType == doubleClick){
@@ -138,9 +158,9 @@ if(screenNum == 1){
      }
      if(editModeOn){targetTemp = (controlPot-10)*0.2964;;}
 }
-    
+//end of display screen one
 
-
+//display screen two
 else if(screenNum == 2){
      
      dynamicDisplay_2();
@@ -155,22 +175,24 @@ else if(screenNum == 2){
 
 
 else if(pageSettingsIndex == 2){
-          display.drawLine(0,28,63,28,BLACK);
           display.drawLine(65,28,127,28,WHITE);
           display.display();
           if(gestureType == doubleClick){
                if(editModeOn == false){editModeOn = true;}else{editModeOn = false;}
                      }
-          if(editModeOn){               fanSpeed = (controlPot-10)*0.0988;if(fanSpeed > 100){fanSpeed = 100;}else if(fanSpeed < 0){fanSpeed = 0;}}
-               }
+          if(editModeOn){fanSpeed = (controlPot-10)*0.0988;if(fanSpeed > 100){fanSpeed = 100;}else if(fanSpeed < 0){fanSpeed = 0;}}
+          
+          }
 
 
 else if(pageSettingsIndex == 3){
-          display.drawLine(65,28,127,28,BLACK);
-          display.drawLine(0,60,127,60,WHITE);
+          display.drawLine(1,60,127,60,WHITE);
           display.display();
           if(gestureType == doubleClick){
                if(heatingElementOn == true){heatingElementOn = false;}else{heatingElementOn = true;}}
      }
 }
+// end of display sreen two
+
+
 }
