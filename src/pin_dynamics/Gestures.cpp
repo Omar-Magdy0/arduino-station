@@ -55,7 +55,7 @@ return 0;
 
 unsigned long click1Time,click2Time = 0;
 
-uint16_t doubleClickTimeout = 300;
+uint16_t doubleClickTimeout = 1000;
 
 int8_t gestureHandler(){
 int8_t clickType = clickHandler();
