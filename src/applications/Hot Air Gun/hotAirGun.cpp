@@ -11,36 +11,40 @@ int8_t fanSpeed = 0;
 bool fanOn = false,heatingElementOn = false;
 int16_t targetTemp = 0;
 
-BEGIN_FLASH_STRING_TABLE(hotAirGuntxt)
-/*0*/    ADD_FLASH_STRING("Hot AIR GUN")
-/*1*/    ADD_FLASH_STRING("* Temperature *")
-/*2*/    ADD_FLASH_STRING("Current")
-/*3*/    ADD_FLASH_STRING("Target")
-/*4*/    ADD_FLASH_STRING("Fan")
-/*5*/    ADD_FLASH_STRING("Heating Element")
 
-
-END_FLASH_STRING_TABLE()
-
-
+/*0*/    const char hotAirGun1[] PROGMEM = "Hot AIR GUN";
+/*1*/    const char hotAirGun2[] PROGMEM = "Temperature";
+/*2*/    const char hotAirGun3[] PROGMEM = "Current";
+/*3*/    const char hotAirGun4[] PROGMEM = "Target";
+/*4*/    const char hotAirGun5[] PROGMEM = "Fan";
+/*5*/    const char hotAirGun6[] PROGMEM = "Heating Element";
 
 
 void hotAirGunStaticDisplay_1(){
 display.clearDisplay();
+char text[14];
 //First text
-Box1.text = hotAirGuntxt[0];
+for (uint8_t i = 0; i < sizeof(hotAirGun1); i++) {
+    text[i] = pgm_read_byte(&hotAirGun1[i]);}
+Box1.text = text;
 Box1.textRectCenterer(0,0,128,16,1);
 Box1.textDisplaySans(WHITE,0);
 //second text
-Box1.text = hotAirGuntxt[1];
+for (uint8_t i = 0; i < sizeof(hotAirGun2); i++) {
+    text[i] = pgm_read_byte(&hotAirGun2[i]);}
+Box1.text = text;
 Box1.textRectCenterer(0,14,128,14,1);
 Box1.textDisplaySans(WHITE,0);
 //third text
-Box1.text = hotAirGuntxt[2];
+for (uint8_t i = 0; i < sizeof(hotAirGun3); i++) {
+    text[i] = pgm_read_byte(&hotAirGun3[i]);}
+Box1.text = text;
 Box1.textRectCenterer(0,28,64,14,1);
 Box1.textDisplaySans(WHITE,0);
 //fourth text
-Box1.text = hotAirGuntxt[3];
+for (uint8_t i = 0; i < sizeof(hotAirGun4); i++) {
+    text[i] = pgm_read_byte(&hotAirGun4[i]);}
+Box1.text = text;
 Box1.textRectCenterer(64,28,64,14,1);
 Box1.textDisplaySans(WHITE,0);
 //end text
@@ -74,13 +78,17 @@ display.display();
 
 
 void hotAirGunStaticDisplay_2(){
-display.clearDisplay();
+display.clearDisplay();char text[16];
 //first text
-Box1.text = hotAirGuntxt[4];
+for (uint8_t i = 0; i < sizeof(hotAirGun5); i++) {
+    text[i] = pgm_read_byte(&hotAirGun5[i]);}
+Box1.text = text;
 Box1.textRectCenterer(0,0,128,14,1);
 Box1.textDisplaySans(WHITE,0);
 //second text
-Box1.text = hotAirGuntxt[5];
+for (uint8_t i = 0; i < sizeof(hotAirGun6); i++) {
+    text[i] = pgm_read_byte(&hotAirGun6[i]);}
+Box1.text = text;
 Box1.textRectCenterer(0,32,128,14,1);
 Box1.textDisplaySans(WHITE,0);
 // end text
@@ -92,9 +100,9 @@ display.display();
 }
 
 void dynamicDisplay_2(){
-display.fillRect(1,15,62,17,BLACK);
-display.fillRect(66,15,62,17,BLACK);
-display.fillRect(1,47,127,17,BLACK);
+display.fillRect(1,15,62,13,BLACK);
+display.fillRect(66,15,62,13,BLACK);
+display.fillRect(1,47,127,13,BLACK);
 //first text
 if(fanOn == true){Box1.text = "ON";}else{Box1.text = "OFF";}
 Box1.textRectCenterer(0,14,64,18,1);
@@ -123,13 +131,19 @@ if(appJustRun){
 */
 
 
-
-
 int8_t screenNum = 1;
 bool editModeOn = false;
 int8_t pageSettingsIndex = 1;
 
+float Kp=0.1, Ki=0.5, Kd=0.1, Hz=10;
+int output_bits = 8;
+bool output_signed = false;
+
+FastPID myPID(Kp, Ki, Kd, Hz, output_bits, output_signed);
+
+
 void hotAirGun(){
+     int16_t currentTemp = 34;
 //toggle display
 if(gestureType == longClick && (!editModeOn) ){screenNum++;if(screenNum > 2)screenNum = 1;
 if(screenNum == 1){hotAirGunStaticDisplay_1();}
@@ -140,19 +154,31 @@ else if (screenNum == 2){hotAirGunStaticDisplay_2();}
 
 // code to run once HERE
 if(appJustRun){
-     INIT_FLASH_STRING_TABLE(hotAirGuntxt);delay(10);
      appJustRun = false;hotAirGunStaticDisplay_1();
+     pinMode(Heater,OUTPUT);
+     pinMode(Fan,OUTPUT);
+     pinMode(AirGunNTC,INPUT);
+     
        
-         if (myPID.err()) {
-    Serial.println("There is a configuration error!");
-          }
 }
 //end of code once 
+
+//Closing app
+if(appClosing){
+//do whatever you want before closing app
+screenNum = 1;
+
+
+
+appClosing = false;
+appRunning = false;
+}
+//end of app closing
 
 
 //display screen one
 if(screenNum == 1){
-    dynamicDisplay_1(30,targetTemp);
+    dynamicDisplay_1(currentTemp,targetTemp);
     if(gestureType == doubleClick){
           if(editModeOn == false){editModeOn = true;}else{editModeOn = false;}
      }
@@ -167,6 +193,7 @@ else if(screenNum == 2){
      if(gestureType == shortClick && (!editModeOn) ){pageSettingsIndex++; if(pageSettingsIndex > 3)pageSettingsIndex = 1;}
 
      if(pageSettingsIndex == 1){
+          display.drawLine(1,60,127,60,BLACK);
           display.drawLine(0,28,63,28,WHITE);
           display.display();
           if(gestureType == doubleClick){
@@ -175,6 +202,7 @@ else if(screenNum == 2){
 
 
 else if(pageSettingsIndex == 2){
+          display.drawLine(0,28,63,28,BLACK);
           display.drawLine(65,28,127,28,WHITE);
           display.display();
           if(gestureType == doubleClick){
@@ -186,6 +214,7 @@ else if(pageSettingsIndex == 2){
 
 
 else if(pageSettingsIndex == 3){
+          display.drawLine(65,28,127,28,BLACK);
           display.drawLine(1,60,127,60,WHITE);
           display.display();
           if(gestureType == doubleClick){
@@ -193,6 +222,14 @@ else if(pageSettingsIndex == 3){
      }
 }
 // end of display sreen two
+     if(fanOn == true){
+          uint8_t outputFanSpeed = 2.56 * fanSpeed;
+          analogWrite(Fan,outputFanSpeed);}
+          else{digitalWrite(Fan,LOW);}
 
-
+     int16_t setpoint = targetTemp; 
+     int16_t feedback = currentTemp;
+     uint8_t output = myPID.step(setpoint, feedback);
+     analogWrite(Heater, output);
+     
 }

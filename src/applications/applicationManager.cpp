@@ -38,6 +38,7 @@ int8_t appMenuIndexer(int8_t num){
 
 int8_t menuIndex = 0;
 bool mainMenuJustOpen = true,appRunning = false,appJustRun = false;
+bool appClosing = false;
 int8_t gestureType;
 int16_t controlPot;
 
@@ -50,7 +51,7 @@ gestureType = gestureHandler();
 
 if (appRunning){
 	menuApps[menuIndex].runApp();
-	if(gestureType == veryLongClick){menuApps[menuIndex].closeApp();appRunning = false;mainMenuJustOpen = true;
+	if(gestureType == veryLongClick){appClosing = true;mainMenuJustOpen = true;
 	}
 }
 else if(!appRunning){
@@ -196,6 +197,15 @@ void maintenance(){
     display.clearDisplay();
     display.drawBitmap(0,0,maintenanceScreen,128,64,WHITE);
     display.display();
+	if(appClosing){
+//do whatever you want before closing app
+
+
+
+
+appClosing = false;
+appRunning = false;
+}
 }
 
 

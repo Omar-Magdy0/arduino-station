@@ -155,4 +155,10 @@ display.clearDisplay();
 display.drawBitmap(0,0,evilMotivation,128,64,WHITE);
 display.display();
 }
+
+if(appClosing){
+//do whatever you want before closing app
+appClosing = false;
+appRunning = false;
+}
 }

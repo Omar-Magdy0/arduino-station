@@ -16,7 +16,7 @@ extern unsigned long currentTime;
 unsigned long startTime;
 
 
-uint8_t debounceWait = 50;
+uint8_t debounceWait = 100;
 
 
 #define maxShortClickTime 300
@@ -55,7 +55,7 @@ return 0;
 
 unsigned long click1Time,click2Time = 0;
 
-uint16_t doubleClickTimeout = 1000;
+uint16_t doubleClickTimeout = 700;
 
 int8_t gestureHandler(){
 int8_t clickType = clickHandler();
