@@ -7,6 +7,10 @@
 #define AirGunNTC A2
 #define Fan 10
 #define Heater 9
+#define dimPin 20
+#define acZeroRead 21
+extern unsigned long currentTime;
+unsigned long acZeroTime = 0;
 int8_t fanSpeed = 0;
 bool fanOn = false,heatingElementOn = false;
 int16_t targetTemp = 0;
@@ -18,6 +22,32 @@ int16_t targetTemp = 0;
 /*3*/    const char hotAirGun4[] PROGMEM = "Target";
 /*4*/    const char hotAirGun5[] PROGMEM = "Fan";
 /*5*/    const char hotAirGun6[] PROGMEM = "Heating Element";
+
+
+//AC Object and functions for DIMMING and AC wave manipulation
+class AC{
+private:
+int8_t frequency;
+
+public:
+AC(){};
+int8_t getFrequency(){
+if((digitalRead(acZeroRead) == LOW) && (acZeroTime = 0)){acZeroTime = currentTime;}
+else if ((digitalRead(acZeroRead) == LOW)&&(acZeroTime != 0)){
+int8_t halfWaveTime = currentTime - acZeroTime;
+frequency = 1/(halfWaveTime*2);
+return frequency;     
+}
+
+
+};
+void acDim(){
+
+
+
+}
+
+;};
 
 
 void hotAirGunStaticDisplay_1(){
