@@ -10,7 +10,6 @@
 #define dimPin 20
 #define acZeroRead 21
 extern unsigned long currentTime;
-unsigned long acZeroTime = 0;
 int8_t fanSpeed = 0;
 bool fanOn = false,heatingElementOn = false;
 int16_t targetTemp = 0;
@@ -25,6 +24,7 @@ int16_t targetTemp = 0;
 
 
 //AC Object and functions for DIMMING and AC wave manipulation
+unsigned long acZeroTime1st = 0;
 class AC{
 private:
 int8_t frequency;
@@ -32,18 +32,18 @@ int8_t frequency;
 public:
 AC(){};
 int8_t getFrequency(){
-if((digitalRead(acZeroRead) == LOW) && (acZeroTime = 0)){acZeroTime = currentTime;}
-else if ((digitalRead(acZeroRead) == LOW)&&(acZeroTime != 0)){
-int8_t halfWaveTime = currentTime - acZeroTime;
-frequency = 1/(halfWaveTime*2);
-return frequency;     
+uint16_t acZeroTime2nd;
+if((digitalRead(acZeroRead) == LOW) && (acZeroTime1st == 0)){acZeroTime1st = currentTime;}
+else if ((digitalRead(acZeroRead) == LOW)&&(acZeroTime1st != 0)){
+acZeroTime2nd = currentTime;
+frequency = 1/( (acZeroTime2nd - acZeroTime1st) *2);
+acZeroTime1st = acZeroTime2nd;
+return frequency;
 }
-
-
 };
+
+
 void acDim(){
-
-
 
 }
 
