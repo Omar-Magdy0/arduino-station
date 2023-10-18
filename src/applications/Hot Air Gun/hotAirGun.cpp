@@ -24,7 +24,23 @@ int16_t targetTemp = 0;
 
 
 //AC Object and functions for DIMMING and AC wave manipulation
-unsigned long acZeroTime1st = 0;
+
+
+float calcAcOffTime(int8_t freq,uint8_t intensity){
+     float z;float c = 4*PI*freq*(intensity/255.0);
+     for(int i = 0;i < 3;i++){
+          z = z - ((z - sin(z) - c)/(1 - cos(z))); 
+     };
+     float onTime = z/(4*PI*freq) ;    
+     float offTime = (1/freq) - onTime ; 
+     Serial.print(offTime);
+     return offTime;
+}
+
+uint16_t acZeroTime1st = 0;
+bool highTriggered = false;
+
+
 class AC{
 private:
 int8_t frequency;
@@ -33,21 +49,31 @@ public:
 AC(){};
 int8_t getFrequency(){
 uint16_t acZeroTime2nd;
-if((digitalRead(acZeroRead) == LOW) && (acZeroTime1st == 0)){acZeroTime1st = currentTime;}
-else if ((digitalRead(acZeroRead) == LOW)&&(acZeroTime1st != 0)){
-acZeroTime2nd = currentTime;
-frequency = 1/( (acZeroTime2nd - acZeroTime1st) *2);
-acZeroTime1st = acZeroTime2nd;
-return frequency;
+
+if((digitalRead(acZeroRead) == LOW)  && (highTriggered == true)){
+     if(acZeroTime1st == 0)acZeroTime1st = currentTime;}
+     else if (acZeroTime1st != 0){
+          acZeroTime2nd = currentTime;
+          frequency = 1/( (acZeroTime2nd - acZeroTime1st) *2);
+          acZeroTime1st = acZeroTime2nd;
+          highTriggered = false;
+          return frequency;
+     }
+if(digitalRead(acZeroRead) == HIGH){highTriggered = true;}
+
+}
+
+
+
+void dim(){
+float offTime = calcAcOffTime(frequency,127);
+if((currentTime - acZeroTime1st) >= offTime)digitalWrite(dimPin,HIGH);
+else(pinMode(dimPin,LOW));
 }
 };
 
 
-void acDim(){
 
-}
-
-;};
 
 
 void hotAirGunStaticDisplay_1(){
@@ -252,6 +278,9 @@ else if(pageSettingsIndex == 3){
      }
 }
 // end of display sreen two
+
+// I/O Functionality Code Block
+
      if(fanOn == true){
           uint8_t outputFanSpeed = 2.56 * fanSpeed;
           analogWrite(Fan,outputFanSpeed);}
