@@ -177,7 +177,7 @@ void defaultBootLoader(){
 
 pinMode(mainButton,INPUT_PULLUP); pinMode(mainPot,INPUT); 
  checkForScreen();
- Serial.begin(9600);
+ Serial.begin(19200);
 display.clearDisplay();
 display.drawBitmap(0,0,BIGANTLOGO,128,64,WHITE);
 display.display();

@@ -5,10 +5,10 @@
 
 
 #define AirGunNTC A2
-#define Fan 10
-#define Heater 9
-#define dimPin 20
-#define acZeroRead 21
+#define Fan 9
+#define Heater 10
+#define acDimPin 11
+#define acZeroRead 12
 extern unsigned long currentTime;
 int8_t fanSpeed = 0;
 bool fanOn = false,heatingElementOn = false;
@@ -25,7 +25,7 @@ int16_t targetTemp = 0;
 
 //AC Object and functions for DIMMING and AC wave manipulation
 
-
+/*  RANDOM PHASE DIMMING
 float calcAcOffTime(int8_t freq,uint8_t intensity){
      float z;float c = 4*PI*freq*(intensity/255.0);
      for(int i = 0;i < 3;i++){
@@ -36,7 +36,7 @@ float calcAcOffTime(int8_t freq,uint8_t intensity){
      Serial.print(offTime);
      return offTime;
 }
-
+*/
 uint16_t acZeroTime1st = 0;
 bool highTriggered = false;
 
@@ -63,14 +63,15 @@ if(digitalRead(acZeroRead) == HIGH){highTriggered = true;}
 
 }
 
-
-
+};
+/*        RANDOM PHASE DIMMING
 void dim(){
 float offTime = calcAcOffTime(frequency,127);
-if((currentTime - acZeroTime1st) >= offTime)digitalWrite(dimPin,HIGH);
-else(pinMode(dimPin,LOW));
+if((currentTime - acZeroTime1st) >= offTime)digitalWrite(acDimPin,HIGH);
+else(pinMode(acDimPin,LOW));
 }
 };
+*/
 
 
 
@@ -214,6 +215,8 @@ if(appJustRun){
      pinMode(Heater,OUTPUT);
      pinMode(Fan,OUTPUT);
      pinMode(AirGunNTC,INPUT);
+     pinMode(acZeroRead,INPUT);
+     pinMode(acDimPin,OUTPUT);
      
        
 }
@@ -286,9 +289,13 @@ else if(pageSettingsIndex == 3){
           analogWrite(Fan,outputFanSpeed);}
           else{digitalWrite(Fan,LOW);}
 
-     int16_t setpoint = targetTemp; 
-     int16_t feedback = currentTemp;
-     uint8_t output = myPID.step(setpoint, feedback);
-     analogWrite(Heater, output);
+    // int16_t setpoint = targetTemp; 
+   //  int16_t feedback = currentTemp;
+    // uint8_t output = myPID.step(setpoint, feedback);
+   //  analogWrite(Heater, output);
+
+     if(heatingElementOn == true){digitalWrite(acDimPin,HIGH);}
+     else{digitalWrite(acDimPin,LOW);}
      
+     if(digitalRead(acZeroRead) == HIGH){Serial.println(currentTime);}
 }
