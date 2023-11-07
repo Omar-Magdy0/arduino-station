@@ -8,5 +8,5 @@
 #define reset -1
 Adafruit_SSD1306 display(screenWidth, screenHeight, &Wire, reset);
 
-void checkForScreen(){if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3c)){Serial.println("nooo");for(;;);}else{display.clearDisplay();}}
+void checkForScreen(){if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3c)){for(;;);}else{display.clearDisplay();}}
 

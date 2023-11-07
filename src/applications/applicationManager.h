@@ -21,10 +21,11 @@ const char* appname PROGMEM;
 public:
 const char* name(){return appname;}
 application(const char* name,void (*function)()){appname = name;appLoopingFunction = function;}
-void runApp(){appRunning = true;appLoopingFunction();}
+inline void runApp(){appRunning = true;appLoopingFunction();}
 void closeApp(){appRunning = false;}
 };
-
+ 
+ //optimazable
 extern bool appClosing;
 extern bool appJustRun;
 extern application menuApps[];

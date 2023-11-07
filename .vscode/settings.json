@@ -3,5 +3,6 @@
     "files.associations": {
         "wiring_private.h": "c",
         "pins_arduino.h": "c"
-    }
+    },
+    "cmake.sourceDirectory": "D:/OmarProgramming/arduino-station/.pio/libdeps/uno/Adafruit BusIO"
 }

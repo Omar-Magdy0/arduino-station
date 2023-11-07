@@ -1,4 +1,4 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 #include <display.h>
 #include <applicationManager.h> 
 
@@ -49,7 +49,7 @@
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80
 };   */
 
-
+// initial display
 const unsigned char BIGANTLOGO [] PROGMEM = {
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -136,7 +136,7 @@ const unsigned char BIGANTLOGO [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 }; */
 
-
+/*
 const unsigned char ATSTATION [] PROGMEM = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -171,21 +171,82 @@ const unsigned char ATSTATION [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x00, 0x00, 
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
+*/
+
+// TIMERCOUNTER2 settings
+volatile uint16_t globalTimeMillis;
+volatile uint8_t allRemainingFract;
+#define remainingFractSH ((1024 % 1000) >> 3)
+#define maxFract (1000 >> 3)
+
+ISR(TIMER2_OVF_vect){
+unsigned long mils; 
+uint8_t frcts;
+//pass global vars to local ones
+mils = globalTimeMillis;
+frcts = allRemainingFract;
+mils += 1;
+frcts += remainingFractSH;
+//logic for the remaining fract time
+if (frcts >= maxFract){
+frcts -= maxFract;
+mils++;
+}
+//pass again to global
+globalTimeMillis = mils;
+allRemainingFract = frcts;
+}
+// end for timer 2
 
 
+// to call function
 void defaultBootLoader(){
+	// Pin assignments
+	//BUTTON PIN GPIO13 (PORTB5) and POT gpio 14 (PORTC0)
+PORTB |= ( 1 << PORTB5);
+PORTC &= ~( 1 << PORTC0);
+DDRB &= ~( 1 << DDC0);
+DDRB &= ~( 1 << DDB5);
+SREG |= ( 1 << SREG_I);
+PCICR |= ( 1 << PCIE0);
+PCMSK0 |= ( 1 << PCINT5);
 
-pinMode(mainButton,INPUT_PULLUP); pinMode(mainPot,INPUT); 
+	// timerCounter CLOCK 2 setting and initials
+TCCR2A &= 0b00000000;
+TCCR2B |= ( 1 << CS22);
+TIMSK2 |= ( 1 << TOIE2);
+
+	// ADC SETTINGS
+ADMUX &= 0b00000000;
+ADCSRA |= (1<<ADEN) | (1<<ADIE) | (1<<ADPS2);
+
+//continue with the rest
  checkForScreen();
- Serial.begin(19200);
+ //Serial.begin(19200);
 display.clearDisplay();
 display.drawBitmap(0,0,BIGANTLOGO,128,64,WHITE);
 display.display();
-delay(2000);
-display.clearDisplay();
+while(globalTimeMillis <= 2000);
+/*display.clearDisplay();
 display.drawBitmap(32,0,ATSTATION,64,64,WHITE);
 display.display();
-delay(2000);
-
+while(globalTimeMillis <= 4000);*/
 }
 
+
+
+//USART funcs
+#define asyncBaudtoUBRRN(b) (round((1e6/b)-1))
+
+void USART_Start(int baud){
+UCSR0B |= ( (1 << RXEN0) | (1 << TXEN0) );
+UCSR0B &= ~( 1 << UCSZ02 );
+UCSR0C &= ~( ( 1 << UMSEL01) | ( 1 << UMSEL00) | ( 1 << UPM00) | ( 1 << UCPOL0)  );
+UCSR0C |= ( 1 << UCSZ01) | ( 1 << UCSZ00) | ( 1 << UPM01 ) | ( 1 << USBS0) ;
+UBRR0 = asyncBaudtoUBRRN(baud);
+}
+
+void USART_Send(unsigned char data){
+while (!(UCSR0A & ( 1<<UDRE0)));
+UDR0 = data;
+}

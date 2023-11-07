@@ -9,7 +9,7 @@
 #define Heater 10
 #define acDimPin 11
 #define acZeroRead 12
-extern unsigned long currentTime;
+#define noVar 0
 int8_t fanSpeed = 0;
 bool fanOn = false,heatingElementOn = false;
 int16_t targetTemp = 0;
@@ -25,7 +25,7 @@ int16_t targetTemp = 0;
 
 //AC Object and functions for DIMMING and AC wave manipulation
 
-/*  RANDOM PHASE DIMMING
+
 float calcAcOffTime(int8_t freq,uint8_t intensity){
      float z;float c = 4*PI*freq*(intensity/255.0);
      for(int i = 0;i < 3;i++){
@@ -36,7 +36,7 @@ float calcAcOffTime(int8_t freq,uint8_t intensity){
      Serial.print(offTime);
      return offTime;
 }
-*/
+
 uint16_t acZeroTime1st = 0;
 bool highTriggered = false;
 
@@ -51,9 +51,9 @@ int8_t getFrequency(){
 uint16_t acZeroTime2nd;
 
 if((digitalRead(acZeroRead) == LOW)  && (highTriggered == true)){
-     if(acZeroTime1st == 0)acZeroTime1st = currentTime;}
+     if(acZeroTime1st == 0)acZeroTime1st = noVar;}
      else if (acZeroTime1st != 0){
-          acZeroTime2nd = currentTime;
+          acZeroTime2nd = noVar;
           frequency = 1/( (acZeroTime2nd - acZeroTime1st) *2);
           acZeroTime1st = acZeroTime2nd;
           highTriggered = false;
@@ -63,15 +63,14 @@ if(digitalRead(acZeroRead) == HIGH){highTriggered = true;}
 
 }
 
-};
-/*        RANDOM PHASE DIMMING
+
+
 void dim(){
 float offTime = calcAcOffTime(frequency,127);
-if((currentTime - acZeroTime1st) >= offTime)digitalWrite(acDimPin,HIGH);
+if((noVar - acZeroTime1st) >= offTime)digitalWrite(acDimPin,HIGH);
 else(pinMode(acDimPin,LOW));
 }
 };
-*/
 
 
 
@@ -201,6 +200,9 @@ FastPID myPID(Kp, Ki, Kd, Hz, output_bits, output_signed);
 
 void hotAirGun(){
      int16_t currentTemp = 34;
+
+
+
 //toggle display
 if(gestureType == longClick && (!editModeOn) ){screenNum++;if(screenNum > 2)screenNum = 1;
 if(screenNum == 1){hotAirGunStaticDisplay_1();}
@@ -217,8 +219,7 @@ if(appJustRun){
      pinMode(AirGunNTC,INPUT);
      pinMode(acZeroRead,INPUT);
      pinMode(acDimPin,OUTPUT);
-     
-       
+        
 }
 //end of code once 
 
@@ -296,6 +297,7 @@ else if(pageSettingsIndex == 3){
 
      if(heatingElementOn == true){digitalWrite(acDimPin,HIGH);}
      else{digitalWrite(acDimPin,LOW);}
+     if(digitalRead(acZeroRead) == LOW){Serial.println(noVar);}
      
-     if(digitalRead(acZeroRead) == HIGH){Serial.println(currentTime);}
 }
+

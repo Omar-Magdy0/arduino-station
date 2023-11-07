@@ -36,15 +36,15 @@ int8_t appMenuIndexer(int8_t num){
 
 }
 
+//optimisable lines below
 int8_t menuIndex = 0;
-bool mainMenuJustOpen = true,appRunning = false,appJustRun = false;
-bool appClosing = false;
+bool mainMenuJustOpen = true,appRunning = false,appJustRun = false,appClosing = false;
 int8_t gestureType;
 int16_t controlPot;
 
 
 
-void applicationManager(){
+inline void applicationManager(){
 
 controlPot = readPot();
 gestureType = gestureHandler();
@@ -53,11 +53,11 @@ if (appRunning){
 	menuApps[menuIndex].runApp();
 	if(gestureType == veryLongClick){appClosing = true;mainMenuJustOpen = true;
 	}
+return;
 }
+
+
 else if(!appRunning){
-
-
-
 if (mainMenuJustOpen){
 
 display.clearDisplay();
@@ -96,6 +96,15 @@ Box1.textDisplaySans(WHITE,0);
 display.display();
 }
 
+
+else if (gestureType == veryLongClick){
+menuApps[menuIndex].runApp();appJustRun = true;Serial.print("appprunning");
+}
+}
+
+
+
+/*
 else if (gestureType == doubleClick){
 menuIndex--;if(menuIndex < (0)){menuIndex = appMenuSize -1;}
 display.clearDisplay();
@@ -112,12 +121,7 @@ Box1.textDisplaySans(WHITE,0);
     display.drawRect(1,23,126,18,WHITE);
 display.display();
 }
-
-
-else if (gestureType == veryLongClick){
-menuApps[menuIndex].runApp();appJustRun = true;Serial.print("appprunning");
-}
-}
+*/
 }
 
 
@@ -199,10 +203,6 @@ void maintenance(){
     display.display();
 	if(appClosing){
 //do whatever you want before closing app
-
-
-
-
 appClosing = false;
 appRunning = false;
 }

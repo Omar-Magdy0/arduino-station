@@ -1,15 +1,32 @@
 #include <Arduino.h>
 #include "applicationManager.h"
- 
 
-void setup() {
+
+
+
+extern volatile uint16_t globalTimeMillis;
+extern void atomicDebounceReEnable();
+extern void comboSlave();
+
+int main(){
  defaultBootLoader();
+ Serial.begin(115200); 
+while(1){
+ //applicationManager();
+  //Serial.println(globalTime);
+ atomicDebounceReEnable();
+ comboSlave();
+}
+return 0;
+
 }
 
 
-unsigned long currentTime;
 
-void loop() {
-  currentTime = millis();
-  applicationManager();
-}
+
+
+
+
+
+
+
