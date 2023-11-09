@@ -51,7 +51,7 @@
 
 // initial display
 const unsigned char BIGANTLOGO [] PROGMEM = {
-0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -179,6 +179,16 @@ volatile uint8_t allRemainingFract;
 #define remainingFractSH ((1024 % 1000) >> 3)
 #define maxFract (1000 >> 3)
 
+
+// TIMER 2 count millis
+#define START 1
+#define END 0
+void clk2CountMillis(uint8_t command){
+	if (command == START)TIMSK2 |= ( 1 << TOIE2);
+	if (command == END)TIMSK2 &= ~( 1 << TOIE2);}
+
+
+
 ISR(TIMER2_OVF_vect){
 unsigned long mils; 
 uint8_t frcts;
@@ -211,10 +221,13 @@ SREG |= ( 1 << SREG_I);
 PCICR |= ( 1 << PCIE0);
 PCMSK0 |= ( 1 << PCINT5);
 
-	// timerCounter CLOCK 2 setting and initials
+	// timerCounter CLOCK 2 setting and prescaller
 TCCR2A &= 0b00000000;
 TCCR2B |= ( 1 << CS22);
-TIMSK2 |= ( 1 << TOIE2);
+
+	// timerCounter CLOCK 2 setting and prescaller
+TCCR1A &= 0b00000000;
+TCCR1B |= (1<<CS10) | (1<<CS12);
 
 	// ADC SETTINGS
 ADMUX &= 0b00000000;
@@ -226,7 +239,7 @@ ADCSRA |= (1<<ADEN) | (1<<ADIE) | (1<<ADPS2);
 display.clearDisplay();
 display.drawBitmap(0,0,BIGANTLOGO,128,64,WHITE);
 display.display();
-while(globalTimeMillis <= 2000);
+
 /*display.clearDisplay();
 display.drawBitmap(32,0,ATSTATION,64,64,WHITE);
 display.display();

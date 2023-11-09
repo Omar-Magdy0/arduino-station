@@ -24,10 +24,7 @@ cursorX = rectX + ((rectWidth - (width))/2);
 cursorY = rectY + ((rectHeight - (height))/2);
 }
 
-
-
 void textBox::setCursor(uint8_t x,uint8_t y){cursorX = x;cursorY = y;};
-
 
 #define default 0
 

@@ -118,6 +118,8 @@ DVERYLONG CLICK     b10000000
 #define longClickMax 2000
 #define veryLongMax 4000
 #define doubleClickTimeout 700
+//Scale time value in milliseconds to value for clock at 1024 prescaler
+#define timeToCounter(n) (n/(6.4e-2))
 
 volatile int16_t timeOfPress;
 ISR(PCINT0_vect){
@@ -126,17 +128,18 @@ ISR(PCINT0_vect){
   if(PINB & ( 1 << PORTB5)){ // IF change then read HIGH then it is released
     PCMSK0 &= ~( 1 << PCINT5); //DISABLE INTERRUPT FOR DEBOUNCE
     BTNCNTRL &=  ~(1 << lastButtonState); //Store released
-
     // CHECK what click type was after release
-    uint16_t pressReleaseDiff = globalTimeMillis - timeOfPress;
+    // **TCN1 clock/counter1 count register defined at 1024 prescaller in bootloader 
+    uint16_t pressReleaseDiff = TCNT1 - timeOfPress;
+    //Free the bytes holding click types to store fresh ones
     BTNCNTRL &= ~(( 1 << CLCKTYPE0) | ( 1 << CLCKTYPE1) | ( 1 << CLCKTYPE2));
-    if(pressReleaseDiff <= shortClickMax){BTNCNTRL |= ( 1 << CLCKTYPE0);}
-    else if(pressReleaseDiff <= longClickMax){BTNCNTRL |= ( 1 << CLCKTYPE1);}
-    else if(pressReleaseDiff <= veryLongMax){BTNCNTRL |= ( 1 << CLCKTYPE0) | ( 1 << CLCKTYPE1);}
-    else if(pressReleaseDiff >= veryLongMax){BTNCNTRL |= ( 1 << CLCKTYPE2);}
+    if(pressReleaseDiff <= timeToCounter(shortClickMax)){BTNCNTRL |= ( 1 << CLCKTYPE0);return;}
+    else if(pressReleaseDiff <= timeToCounter(longClickMax)){BTNCNTRL |= ( 1 << CLCKTYPE1);return;}
+    else if(pressReleaseDiff <= timeToCounter(veryLongMax)){BTNCNTRL |= ( 1 << CLCKTYPE0) | ( 1 << CLCKTYPE1);return;}
+    else if(pressReleaseDiff >= timeToCounter(veryLongMax)){BTNCNTRL |= ( 1 << CLCKTYPE2);return;}
   }
   else{ // IF change then read LOW then it is pressed
-    timeOfPress = globalTimeMillis;
+    timeOfPress = TCNT1;
     PCMSK0 &= ~( 1 << PCINT5);  //DISABLE INTERRUPT FOR DEBOUNCE
     BTNCNTRL |= (1 << lastButtonState); //Store pressed
   }
@@ -144,11 +147,11 @@ ISR(PCINT0_vect){
 
 
 uint16_t debounceStartTime;
-void atomicDebounceReEnable(){
+inline void atomicDebounceReEnable(){
     if(!(PCMSK0 & (1 << PCINT5))){
-      if(!(BTNCNTRL & (1 << DBNCTMDEF))){debounceStartTime = globalTimeMillis; BTNCNTRL |= ( 1 << DBNCTMDEF);}
+      if(!(BTNCNTRL & (1 << DBNCTMDEF))){debounceStartTime = TCNT1; BTNCNTRL |= ( 1 << DBNCTMDEF);}
       //check last button state and the time since that state
-      if((globalTimeMillis - debounceStartTime) >= debounceTime){
+      if((TCNT1 - debounceStartTime) >= timeToCounter(debounceTime)){
        PCMSK0 |= (1 << PCINT5);
        BTNCNTRL &= ~(1 << DBNCTMDEF);
     }
@@ -166,7 +169,7 @@ void comboSlave(){
     Serial.println('d');
     if(!(BTNCNTRL & (1<<SHRTCLCK1))){
     //Set SHRTCLCK1 flag and the time of that click 
-    BTNCNTRL |= (1<<SHRTCLCK1); shortClickTime_1 = globalTimeMillis;
+    BTNCNTRL |= (1<<SHRTCLCK1); shortClickTime_1 = TCNT1;
     //WE then ABSORB OR consume the shortCLICK state by clearing clicktype register
     BTNCNTRL &= ~((1<<(CLCKTYPE0)) | (1<<(CLCKTYPE1)) | (1<<(CLCKTYPE2)));
     }
@@ -179,17 +182,21 @@ void comboSlave(){
     }
   }
 //IF SHORT CLICK2 was detected check for time difference and act
-  if(((globalTimeMillis - shortClickTime_1) <= 700) && (BTNCNTRL & (1<<SHRTCLCK1)) && (BTNCNTRL & (1<<SHRTCLCK2))){
+  if(((TCNT1 - shortClickTime_1) <= timeToCounter(doubleClickTimeout)) && (BTNCNTRL & (1<<SHRTCLCK1)) && (BTNCNTRL & (1<<SHRTCLCK2))){
   //IF timeout haven't passed yes store double click
     BTNCNTRL |= ((1<<(CLCKTYPE0)) | (1<<(CLCKTYPE2)));
-    Serial.println("doubbleClick");
     BTNCNTRL &= ~((1<<SHRTCLCK1) | (1<<SHRTCLCK2));
       }
-  else if(((globalTimeMillis - shortClickTime_1) >= 700) && (BTNCNTRL & (1<<SHRTCLCK1)) && !(BTNCNTRL & (1<<SHRTCLCK2))){
+  else if(((TCNT1 - shortClickTime_1) >= timeToCounter(doubleClickTimeout)) && (BTNCNTRL & (1<<SHRTCLCK1)) && !(BTNCNTRL & (1<<SHRTCLCK2))){
     BTNCNTRL |= (1<<(CLCKTYPE1)) | (1<<(CLCKTYPE2)) ;
-    Serial.println("shortClick");
     BTNCNTRL &= ~(1<<SHRTCLCK1);
   }
+}
+
+
+
+readPot(){
+
 }
 
 

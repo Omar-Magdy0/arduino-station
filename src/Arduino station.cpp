@@ -7,15 +7,17 @@
 extern volatile uint16_t globalTimeMillis;
 extern void atomicDebounceReEnable();
 extern void comboSlave();
+extern void clk2CountMillis(uint8_t command);
 
 int main(){
  defaultBootLoader();
  Serial.begin(115200); 
+ 
 while(1){
  //applicationManager();
-  //Serial.println(globalTime);
  atomicDebounceReEnable();
  comboSlave();
+ Serial.println(globalTimeMillis);
 }
 return 0;
 
