@@ -2,25 +2,18 @@
 #include "applicationManager.h"
 
 
-
-
-extern volatile uint16_t globalTimeMillis;
-extern void atomicDebounceReEnable();
-extern void comboSlave();
-extern void clk2CountMillis(uint8_t command);
-
 int main(){
- defaultBootLoader();
- Serial.begin(115200); 
- 
-while(1){
- //applicationManager();
- atomicDebounceReEnable();
- comboSlave();
- Serial.println(globalTimeMillis);
-}
-return 0;
+    clk1CountMillis(START);
+    defaultBootLoader();
+    Serial.begin(115200);
+    while(1){
+        //applicationManager();
+        uint8_t clickType = potButtonComb();
+        atomicDebounceReEnable(); 
+      //  if(clickType > 0)Serial.println(clickType);
+    }
 
+return 0;
 }
 
 

@@ -173,40 +173,7 @@ const unsigned char ATSTATION [] PROGMEM = {
 };
 */
 
-// TIMERCOUNTER2 settings
-volatile uint16_t globalTimeMillis;
-volatile uint8_t allRemainingFract;
-#define remainingFractSH ((1024 % 1000) >> 3)
-#define maxFract (1000 >> 3)
 
-
-// TIMER 2 count millis
-#define START 1
-#define END 0
-void clk2CountMillis(uint8_t command){
-	if (command == START)TIMSK2 |= ( 1 << TOIE2);
-	if (command == END)TIMSK2 &= ~( 1 << TOIE2);}
-
-
-
-ISR(TIMER2_OVF_vect){
-unsigned long mils; 
-uint8_t frcts;
-//pass global vars to local ones
-mils = globalTimeMillis;
-frcts = allRemainingFract;
-mils += 1;
-frcts += remainingFractSH;
-//logic for the remaining fract time
-if (frcts >= maxFract){
-frcts -= maxFract;
-mils++;
-}
-//pass again to global
-globalTimeMillis = mils;
-allRemainingFract = frcts;
-}
-// end for timer 2
 
 
 // to call function
@@ -223,15 +190,15 @@ PCMSK0 |= ( 1 << PCINT5);
 
 	// timerCounter CLOCK 2 setting and prescaller
 TCCR2A &= 0b00000000;
-TCCR2B |= ( 1 << CS22);
+TCCR1B |= (1 << CS20);
 
-	// timerCounter CLOCK 2 setting and prescaller
+	// timerCounter CLOCK 1 setting and prescaller
 TCCR1A &= 0b00000000;
-TCCR1B |= (1<<CS10) | (1<<CS12);
+TCCR1B |= (1 << CS10);
 
 	// ADC SETTINGS
 ADMUX &= 0b00000000;
-ADCSRA |= (1<<ADEN) | (1<<ADIE) | (1<<ADPS2);
+ADCSRA |= (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);
 
 //continue with the rest
  checkForScreen();
@@ -239,6 +206,7 @@ ADCSRA |= (1<<ADEN) | (1<<ADIE) | (1<<ADPS2);
 display.clearDisplay();
 display.drawBitmap(0,0,BIGANTLOGO,128,64,WHITE);
 display.display();
+_delay_ms(2000);
 
 /*display.clearDisplay();
 display.drawBitmap(32,0,ATSTATION,64,64,WHITE);
@@ -247,6 +215,39 @@ while(globalTimeMillis <= 4000);*/
 }
 
 
+// TIMERCOUNTER1 settings
+volatile uint16_t globalTimeMillis;
+volatile uint8_t allRemainingFract;
+#define remainingFractSH ((4096 % 4000) >> 4)
+#define maxFract (4000 >> 4)
+
+
+ISR(TIMER1_OVF_vect){
+uint16_t mils; 
+uint8_t frcts;
+//pass global vars to local ones
+mils = globalTimeMillis;
+frcts = allRemainingFract;
+mils += 4;
+frcts += remainingFractSH;
+//logic for the remaining fract time
+if (frcts >= maxFract){
+frcts -= maxFract;
+mils += 4;
+}
+//pass again to global
+globalTimeMillis = mils;
+allRemainingFract = frcts;
+}
+// end for timer 1
+
+// TIMER 1 count millis
+#define START 1
+#define END 0
+
+void clk1CountMillis(uint8_t command){
+	if (command == START)TIMSK1 |= ( 1 << TOIE1);
+	if (command == END)TIMSK1 &= ~( 1 << TOIE1);}
 
 //USART funcs
 #define asyncBaudtoUBRRN(b) (round((1e6/b)-1))

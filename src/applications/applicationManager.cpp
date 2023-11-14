@@ -1,5 +1,5 @@
-#include <applicationManager.h>
-#include <Configuration.h>
+#include "applicationManager.h"
+#include "Configuration.h"
 // Menu Grid is like that 
 // 1st box 128x20px 
 // 2nd box 128x20px (has white rectangle)
@@ -26,109 +26,104 @@ App6,
 };
 #endif
 
-textBox Box1 = textBox("",0,0);
+
+/*
+                 | 	 MMJO	 |   APRNNG  |  PGCHNG   |  APCSNG   |   MNUI3   |   MNUI2   |   MNUI1   |   MNUI0   |
+APMNGCTRL        |     0     |     0     |     0     |     0     |     0     |     0     |     0     |     0     |    
+
+
+=============== bit 0:3   MENU index bits
+               |   MNUI3   |   MNUI2   |   MNUI1   |   MNUI0   |
+    APP0       |     0     |     0     |     0     |     0     |
+    APP1       |     0     |     0     |     0     |     1     |
+    APP2       |     0     |     0     |     1     |     0     |
+    APP3       |     0     |     0     |     1     |     1     |
+    APP4       |     0     |     1     |     0     |     0     |
+    APP5       |     0     |     1     |     0     |     1     |
+    APP6       |     0     |     1     |     1     |     0     |
+and soo on
+
+			  COULD be used like this for integer operations
+			  int16_t dummyByte = 0b000000;
+			  dummyByte |= (1<<MNUI3) | (1<<MNUI2) | (1<<MNUI1) | (1<<MNUI0);  
+				NOW you have integer for the last 4 bits
+
+
+=== bit 4 (APPCSNG) represents app Closting State
+=== bit 5 (APJSTRN) represents app Just Run State
+=== bit 6 (PGCHNG) represents app is running state
+=== bit 7 (MMJO) represents app Just Run State
+
+*/
+byte APMNGCTRL = 0b10000000;
+#define MNUI0 	0
+#define MNUI1 	1
+#define MNUI2 	2
+#define MNUI3 	3
+#define APCSNG 	4
+#define APJSTRN 5
+#define PGCHNG 	6
+#define MMJO 	7
 
 
 int8_t appMenuIndexer(int8_t num){
     if(num > (appMenuSize - 1)){num = 0;}
     else if(num < 0){num = (appMenuSize - 1);}    
     return num;
-
 }
 
-//optimisable lines below
-int8_t menuIndex = 0;
-bool mainMenuJustOpen = true,appRunning = false,appJustRun = false,appClosing = false;
-int8_t gestureType;
-int16_t controlPot;
+textBox Box1 = textBox("",0,0);
+
+void applicationManager(){
+int8_t menuIndex = 0b000000;
+menuIndex |= APMNGCTRL & ((1<<MNUI3) | (1<<MNUI2) | (1<<MNUI1) | (1<<MNUI0)); 
+
+
+//HERE FUNCTIONS FOR WHEN BUTTON ACTION DETECTED
+uint8_t clickType = potButtonComb();
+if(clickType == S1){menuIndex++;APMNGCTRL &= 0b11110000;
+	if(menuIndex > (appMenuSize - 1))menuIndex = 0;
+	APMNGCTRL |= menuIndex;APMNGCTRL |= (1<<PGCHNG);}
+else if(clickType == L1){menuIndex--;APMNGCTRL &= 0b11110000;
+	if(menuIndex < 0)menuIndex = appMenuSize - 1;
+	APMNGCTRL |= menuIndex;APMNGCTRL |= (1<<PGCHNG);}
+else if(clickType == L3){;}
 
 
 
-inline void applicationManager(){
-
-controlPot = readPot();
-gestureType = gestureHandler();
-
-if (appRunning){
-	menuApps[menuIndex].runApp();
-	if(gestureType == veryLongClick){appClosing = true;mainMenuJustOpen = true;
-	}
-return;
+if( (APMNGCTRL & (1<<MMJO)) || (APMNGCTRL & (1<<PGCHNG)) ){
+		display.clearDisplay();
+		    char getty[15];
+		const char *name = menuApps[appMenuIndexer(menuIndex - 1)].getName();
+    	for (uint8_t i = 0; i < 15; i++) {
+    	getty[i] = pgm_read_byte(&name[i]);}
+		Box1.text = getty;
+		Box1.textRectCenterer(0,2,128,20,1);
+		Box1.textDisplaySans(WHITE,0);
+		name = menuApps[appMenuIndexer(menuIndex)].getName();
+    	for (uint8_t i = 0; i < 15; i++) {
+    	getty[i] = pgm_read_byte(&name[i]);}
+		Box1.text = getty;
+		Serial.println(menuIndex);
+		Box1.textRectCenterer(0,22,128,20,1);
+	    Box1.textDisplaySans(WHITE,0);
+		name = menuApps[appMenuIndexer(menuIndex + 1)].getName();
+    	for (uint8_t i = 0; i < 15; i++) {
+    	getty[i] = pgm_read_byte(&name[i]);}
+		Box1.text = getty;
+		Box1.textRectCenterer(0,42,128,20,1);
+	    Box1.textDisplaySans(WHITE,0);
+		display.drawRect(0,22,128,20,WHITE);
+	    display.drawRect(1,23,126,18,WHITE);
+	    display.display();
+	    APMNGCTRL &= ~(1<<MMJO);
+		APMNGCTRL &= ~(1<<PGCHNG);
 }
 
-
-else if(!appRunning){
-if (mainMenuJustOpen){
-
-display.clearDisplay();
-
-	Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
-	Box1.textRectCenterer(0,2,128,20,1);
-	Box1.textDisplaySans(WHITE,0);
-	Box1.text = menuApps[appMenuIndexer(menuIndex)].name();
-	Box1.textRectCenterer(0,22,128,20,1);
-    Box1.textDisplaySans(WHITE,0);
-	Box1.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
-	Box1.textRectCenterer(0,42,128,20,1);
-    Box1.textDisplaySans(WHITE,0);
-	display.drawRect(0,22,128,20,WHITE);
-    display.drawRect(1,23,126,18,WHITE);
-    display.display();
-    mainMenuJustOpen = false;
 }
- 
-
-if (gestureType == shortClick){
-menuIndex++;if(menuIndex > (appMenuSize - 1)){menuIndex = 0;}
-display.clearDisplay();
-Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
-Box1.textRectCenterer(0,2,128,20,1);
-Box1.textDisplaySans(WHITE,0);
-Box1.text = menuApps[appMenuIndexer(menuIndex)].name();
-Box1.textRectCenterer(0,22,128,20,1);
-Box1.textDisplaySans(WHITE,0);
-Box1.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
-Box1.textRectCenterer(0,42,128,20,1);
-Box1.textDisplaySans(WHITE,0);
-
-    display.drawRect(0,22,128,20,WHITE);
-    display.drawRect(1,23,126,18,WHITE);
-display.display();
-}
-
-
-else if (gestureType == veryLongClick){
-menuApps[menuIndex].runApp();appJustRun = true;Serial.print("appprunning");
-}
-}
-
-
-
-/*
-else if (gestureType == doubleClick){
-menuIndex--;if(menuIndex < (0)){menuIndex = appMenuSize -1;}
-display.clearDisplay();
-Box1.text = menuApps[appMenuIndexer(menuIndex - 1)].name();
-Box1.textRectCenterer(0,2,128,20,1);
-Box1.textDisplaySans(WHITE,0);
-Box1.text = menuApps[appMenuIndexer(menuIndex)].name();
-Box1.textRectCenterer(0,22,128,20,1);
-Box1.textDisplaySans(WHITE,0);
-Box1.text = menuApps[appMenuIndexer(menuIndex + 1)].name();
-Box1.textRectCenterer(0,42,128,20,1);
-Box1.textDisplaySans(WHITE,0);
-    display.drawRect(0,22,128,20,WHITE);
-    display.drawRect(1,23,126,18,WHITE);
-display.display();
-}
-*/
-}
-
-
-
 
 //maintenance Screen
-
+#ifdef sad
 const unsigned char maintenanceScreen [] PROGMEM = {
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
@@ -195,17 +190,19 @@ const unsigned char maintenanceScreen [] PROGMEM = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
-
+#endif
 
 void maintenance(){
+  #ifdef sad
     display.clearDisplay();
     display.drawBitmap(0,0,maintenanceScreen,128,64,WHITE);
     display.display();
 	if(appClosing){
 //do whatever you want before closing app
-appClosing = false;
-appRunning = false;
-}
+	appClosing = false;
+	appRunning = false;
+	}
+#endif
 }
 
 

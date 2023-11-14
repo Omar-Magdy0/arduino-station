@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <FastPID.h>
 
+#ifdef sad
 
 #define AirGunNTC A2
 #define Fan 9
@@ -301,3 +302,4 @@ else if(pageSettingsIndex == 3){
      
 }
 
+#endif

@@ -1,38 +1,36 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 #include <Arduino.h>
-#include <display.h>
-#include <pin_dynamics.h>
+#include "display.h"
+#include "pin_dynamics.h"
+#include <avr/pgmspace.h>
 
 
 
-//Define HOW YOUR PINS HERE AND GIVE THEM PURPOSE ON BOOTLOADER OR INDIVIDUAL APPLICATION FILES
-// (PIN 13 AND PIN 14 UNIQUE FOR BUTTON AND POT)
-#define mainButton 13
-#define mainPot 14
  
-void maintenance();
-extern bool mainMenuJustOpen,appRunning;
+
 
 class application{
 private:
 void (*appLoopingFunction)();
-const char* appname PROGMEM;
+const char* appName;
 public:
-const char* name(){return appname;}
-application(const char* name,void (*function)()){appname = name;appLoopingFunction = function;}
-inline void runApp(){appRunning = true;appLoopingFunction();}
-void closeApp(){appRunning = false;}
+application(const char* name,void (*function)()){appName = name;appLoopingFunction = function;}
+const char* getName(){
+    return appName ;}
+void(*getAppMainFunc())(){return appLoopingFunction;}
 };
  
- //optimazable
-extern bool appClosing;
-extern bool appJustRun;
+
+
+#define START 1
+#define END 0
+
+extern void clk1CountMillis(uint8_t command);
 extern application menuApps[];
-extern int8_t gestureType;
-extern int16_t controlPot;
 extern textBox Box1;
 void applicationManager();
+void maintenance();
 void defaultBootLoader();
 #endif
 
