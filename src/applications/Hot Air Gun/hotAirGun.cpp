@@ -86,6 +86,7 @@ for (uint8_t i = 0; i < sizeof(hotAirGun1); i++) {
 Box1.text = text;
 Box1.textRectCenterer(0,0,128,16,1);
 Box1.textDisplaySans(WHITE,0);
+
 //second text
 for (uint8_t i = 0; i < sizeof(hotAirGun2); i++) {
     text[i] = pgm_read_byte(&hotAirGun2[i]);}

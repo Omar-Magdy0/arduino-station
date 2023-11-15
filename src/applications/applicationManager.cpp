@@ -28,8 +28,8 @@ App6,
 
 
 /*
-                 | 	 MMJO	 |   APRNNG  |  PGCHNG   |  APCSNG   |   MNUI3   |   MNUI2   |   MNUI1   |   MNUI0   |
-APMNGCTRL        |     0     |     0     |     0     |     0     |     0     |     0     |     0     |     0     |    
+                 | 	 MMJO	 |   APRNNG  |  PGCHNG  |   MNUI3   |   MNUI2   |   MNUI1   |   MNUI0   |
+APMNGCTRL        |     0     |     0     |     0    |     0     |     0     |     0     |     0     |    
 
 
 =============== bit 0:3   MENU index bits
@@ -55,16 +55,16 @@ and soo on
 === bit 7 (MMJO) represents app Just Run State
 
 */
-byte APMNGCTRL = 0b10000000;
+uint8_t APMNGCTRL = (1<<MMJO) ;
 #define MNUI0 	0
 #define MNUI1 	1
 #define MNUI2 	2
 #define MNUI3 	3
-#define APCSNG 	4
-#define APJSTRN 5
-#define PGCHNG 	6
-#define MMJO 	7
+#define PGCHNG 	4
+#define APRNNG  5
+#define MMJO 	6
 
+void(*appFunction)() = nullptr;
 
 int8_t appMenuIndexer(int8_t num){
     if(num > (appMenuSize - 1)){num = 0;}
@@ -81,15 +81,15 @@ menuIndex |= APMNGCTRL & ((1<<MNUI3) | (1<<MNUI2) | (1<<MNUI1) | (1<<MNUI0));
 
 //HERE FUNCTIONS FOR WHEN BUTTON ACTION DETECTED
 uint8_t clickType = potButtonComb();
-if(clickType == S1){menuIndex++;APMNGCTRL &= 0b11110000;
+if(clickType == IPGINDIC){menuIndex++;APMNGCTRL &= 0b11110000;
 	if(menuIndex > (appMenuSize - 1))menuIndex = 0;
 	APMNGCTRL |= menuIndex;APMNGCTRL |= (1<<PGCHNG);}
-else if(clickType == L1){menuIndex--;APMNGCTRL &= 0b11110000;
+else if(clickType == IPGINDDC){menuIndex--;APMNGCTRL &= 0b11110000;
 	if(menuIndex < 0)menuIndex = appMenuSize - 1;
 	APMNGCTRL |= menuIndex;APMNGCTRL |= (1<<PGCHNG);}
-else if(clickType == L3){;}
+else if(clickType == APPCLOOP){APMNGCTRL |= ((1<<MMJO) | (1<<APRNNG));appFunction = menuApps->getAppMainFunc();return;}
 
-
+//GRAPHICS PART ONLY OPTIMIZABLE
 
 if( (APMNGCTRL & (1<<MMJO)) || (APMNGCTRL & (1<<PGCHNG)) ){
 		display.clearDisplay();
@@ -119,11 +119,10 @@ if( (APMNGCTRL & (1<<MMJO)) || (APMNGCTRL & (1<<PGCHNG)) ){
 	    APMNGCTRL &= ~(1<<MMJO);
 		APMNGCTRL &= ~(1<<PGCHNG);
 }
-
 }
 
 //maintenance Screen
-#ifdef sad
+
 const unsigned char maintenanceScreen [] PROGMEM = {
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
@@ -190,19 +189,16 @@ const unsigned char maintenanceScreen [] PROGMEM = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
-#endif
+
 
 void maintenance(){
-  #ifdef sad
     display.clearDisplay();
     display.drawBitmap(0,0,maintenanceScreen,128,64,WHITE);
     display.display();
-	if(appClosing){
+	if(potButtonComb() == APPCLOOP){
 //do whatever you want before closing app
-	appClosing = false;
-	appRunning = false;
+		APMNGCTRL &= ~(1<<APRNNG);
 	}
-#endif
 }
 
 

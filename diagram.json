@@ -3,12 +3,12 @@
   "author": "Omar Magdy",
   "editor": "wokwi",
   "parts": [
-    { "type": "wokwi-arduino-uno", "id": "uno", "top": 1.4, "left": 0.23, "attrs": {} },
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 0.6, "left": -0.6, "attrs": {} },
     {
       "type": "wokwi-pushbutton",
       "id": "btn1",
-      "top": -74.85,
-      "left": 36.02,
+      "top": 294.2,
+      "left": 76.8,
       "attrs": { "color": "blue" }
     },
     {

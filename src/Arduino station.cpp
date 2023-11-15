@@ -7,10 +7,14 @@ int main(){
     defaultBootLoader();
     Serial.begin(115200);
     while(1){
-        //applicationManager();
-        uint8_t clickType = potButtonComb();
+
         atomicDebounceReEnable(); 
-      //  if(clickType > 0)Serial.println(clickType);
+        if(APMNGCTRL & (1<<APRNNG)){
+          appFunction();
+        }
+        else{
+          applicationManager();
+        }
     }
 
 return 0;

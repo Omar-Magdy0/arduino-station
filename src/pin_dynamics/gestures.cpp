@@ -1,4 +1,3 @@
-#include "pin_dynamics.h"
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
@@ -226,8 +225,7 @@ int8_t getClickType(bool detectDoubleClick){
 #endif
 
 
-
-
+#ifdef OLDCLICK3
 //APPROACH 3 for making MY control settings
 
 
@@ -238,9 +236,7 @@ int8_t getClickType(bool detectDoubleClick){
  last Four bit for click Type
                            5         4         3         2         1         0
   BTNCNTRL  | ------- | ------- | RELESFG | PRESSFG | DBNCPSD | LONGCLK | SHRTCLK |
-
 */
-
 volatile int8_t BTNCNTRL;
   #define SHRTCLK 0
   #define LONGCLK 1
@@ -248,31 +244,32 @@ volatile int8_t BTNCNTRL;
   #define PRESSFG 3
   #define RELESFG 4
 
-#define debounceTime 1000
+#define debounceTime 200
 #define shortClickMax 3000
 #define longClickMax 6000
 
-//Scale time value in milliseconds to value for clock at 1024 prescaler
+
+
 
 volatile uint16_t timeOfPress;
 ISR(PCINT0_vect){
-  uint8_t currentState = PINB & ( 1 << PINB5);
+ 
   //FIRST CHECK BUTTON STATE PRESSED/RELEASED 1
   //if press flag is true check for release (every press should have only 1 release)
   //THEN DO OPERATIONS ACCORDINGLY  
-  if(currentState && (BTNCNTRL & (1 << PRESSFG)) ){ // IF change then read HIGH then it is released
+  if( (PINB & ( 1 << PINB5)) && (BTNCNTRL & (1 << PRESSFG))){ // IF change then read HIGH then it is released
     // CHECK what click type was after release
     // **TCN1 clock/counter1 count register defined at 1024 prescaller in bootloader
     //Free the bits holding click types to store fresh ones
     Serial.write('r');
-    BTNCNTRL &= ~((1 << PRESSFG) | ( 1 << SHRTCLK) | ( 1 << LONGCLK)); 
+    BTNCNTRL &=  ~( (1 << PRESSFG) | ( 1 << SHRTCLK) | ( 1 << LONGCLK)); 
     uint16_t pressReleaseDiff = globalTimeMillis - timeOfPress;
     PCMSK0 &= ~( 1 << PCINT5); //DISABLE INTERRUPT FOR DEBOUNCE
     if(pressReleaseDiff <= shortClickMax){BTNCNTRL |= ( 1 << SHRTCLK);Serial.write('s');}
     else if(pressReleaseDiff <= longClickMax){BTNCNTRL |= ( 1 << LONGCLK);Serial.write('l');}
   }
 
-  else if(!currentState && !(BTNCNTRL & (1 << PRESSFG)) ){ // IF change then read LOW then it is pressed
+  else if( !(PINB & ( 1 << PINB5)) && !(BTNCNTRL & (1 << PRESSFG)) ){ // IF change then read LOW then it is pressed
     timeOfPress = globalTimeMillis;
     //press flag on
     Serial.write('p');
@@ -293,5 +290,44 @@ void atomicDebounceReEnable(){
        PCMSK0 |= (1 << PCINT5);
     }
     }}
+#endif
 
 
+
+//APPROACH 4 for making MY control settings
+
+volatile uint16_t lastChangeTime;
+
+/*
+            |    7    |     6   |    5    |    4    |    3    |    2    |    1    |    0    |
+  PCINTMEM0 | PCINTM7 | PCINTM6 | PCINTM5 | PCINTM4 | PCINTM3 | PCINTM2 | PCINTM1 | PCINTM0 |
+  ---PCINTMEM is used to store the last pinState before interrupt happened for PCINT0-PCINT7 pins 
+*/
+volatile int8_t PCINTMEM0;
+  #define PCINTM0 0
+  #define PCINTM1 1
+  #define PCINTM2 2
+  #define PCINTM3 3
+  #define PCINTM4 4
+  #define PCINTM5 5
+  #define PCINTM6 6
+  #define PCINTM7 7
+
+/* 
+ BTNCNTRL DEFINITION
+ BTNCNTRL DEFINITION
+-----CHGNUM(1:2) stores number of clicks before timeout was detected (3max)
+-----CHANGE(1/2) for the first and second clicks detected respectively
+-----DBNCPSD     flag that is set once debouncing starts and cleared when debounce is done 
+
+            |    7    |     6   |    5    |    4    |    3    |    2    |    1    |    0    |
+  BTNCNTRL  | DBNCPSD | ------- | ------- | ------- | CHANGE2 | CHANGE1 | CHGNUM1 | CHGNUM0 |
+*/
+volatile int8_t BTNCNTRL;
+  #define CHGNUM0 0
+  #define CHGNUM1 1
+  #define CHANGE1 2
+  #define CHANGE2 3 
+  #define DBNCPSD 7
+
+uint16_t debounceStartTime;

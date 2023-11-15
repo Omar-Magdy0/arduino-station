@@ -179,15 +179,28 @@ const unsigned char ATSTATION [] PROGMEM = {
 // to call function
 void defaultBootLoader(){
 	// Pin assignments
-	//BUTTON PIN GPIO13 (PORTB5) and POT gpio 14 (PORTC0)
-PORTB |= ( 1 << PORTB5);
-PORTC &= ~( 1 << PORTC0);
-DDRB &= ~( 1 << DDC0);
-DDRB &= ~( 1 << DDB5);
+	//turn all PORTB/PORTC/PORTD pins as input(ELECTRICALLY SAFFEST OPTIONS AT START) 
+PORTB &= 0b00000000;
+PORTC &= 0b00000000;
+PORTD &= 0b00000000;
+DDRB &= 0b00000000;
+DDRC &= 0b00000000;
+DDRD &= 0b00000000;
+//GLOBAL INTERRUPT ENABLE 
 SREG |= ( 1 << SREG_I);
-PCICR |= ( 1 << PCIE0);
-PCMSK0 |= ( 1 << PCINT5);
 
+	// DEFAULT
+	//BUTTON PIN GPIO13 (PORTB5) INPUT PULLUP 
+	//POT gpio 14 (PORTC0) INPUT
+	
+//PORTB settings
+PORTB |= (1 << PORTB5);
+DDRB &= ~( 1 << DDB5);
+
+//PORTC settings
+PORTC &= ~( 1 << PORTC0);
+DDRC |= (1 << DDC0);
+	
 	// timerCounter CLOCK 2 setting and prescaller
 TCCR2A &= 0b00000000;
 TCCR1B |= (1 << CS20);
@@ -212,7 +225,12 @@ _delay_ms(2000);
 display.drawBitmap(32,0,ATSTATION,64,64,WHITE);
 display.display();
 while(globalTimeMillis <= 4000);*/
+
+//ENABLE PINS SPECIFIC INTERRUPTS
+PCICR |= ( 1 << PCIE0);
+PCMSK0 |= ( 1 << PCINT5);
 }
+
 
 
 // TIMERCOUNTER1 settings
@@ -220,7 +238,6 @@ volatile uint16_t globalTimeMillis;
 volatile uint8_t allRemainingFract;
 #define remainingFractSH ((4096 % 4000) >> 4)
 #define maxFract (4000 >> 4)
-
 
 ISR(TIMER1_OVF_vect){
 uint16_t mils; 
