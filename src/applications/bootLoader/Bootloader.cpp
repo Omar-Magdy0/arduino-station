@@ -1,5 +1,4 @@
-//#include <Arduino.h>
-#include <display.h>
+
 #include <applicationManager.h> 
 
 /*   const unsigned char MGSLOGO [] PROGMEM = {
@@ -213,18 +212,7 @@ TCCR1B |= (1 << CS10);
 ADMUX &= 0b00000000;
 ADCSRA |= (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);
 
-//continue with the rest
- checkForScreen();
- //Serial.begin(19200);
-display.clearDisplay();
-display.drawBitmap(0,0,BIGANTLOGO,128,64,WHITE);
-display.display();
-_delay_ms(2000);
 
-/*display.clearDisplay();
-display.drawBitmap(32,0,ATSTATION,64,64,WHITE);
-display.display();
-while(globalTimeMillis <= 4000);*/
 
 //ENABLE PINS SPECIFIC INTERRUPTS
 PCICR |= ( 1 << PCIE0);

@@ -7,12 +7,14 @@
 #define TRANSACTION_START wire->setClock(wireClk)    ///< Set before I2C transfer
 #define TRANSACTION_END wire->setClock(restoreClk) ///< Restore after I2C xfer
 
-
+/******************************************************************************/
 //CONSTRUCTOR
 lightDisplay::lightDisplay(uint8_t w, uint8_t h, TwoWire *twi)
 :  buffer(NULL),wire(twi ? twi : &Wire),width(w),height(h)
 {
 }
+
+/******************************************************************************/
 //DECONSTRUCTOR
 lightDisplay::~lightDisplay(){
       if (buffer) {
@@ -21,6 +23,7 @@ lightDisplay::~lightDisplay(){
   }
 }
 
+/******************************************************************************/
 //SEND SINGLE COMMAND BYTES
 void lightDisplay::sendCommand(uint8_t command){
     wire->beginTransmission(I2Caddr);
@@ -29,6 +32,7 @@ void lightDisplay::sendCommand(uint8_t command){
     wire->endTransmission();
 }
 
+/******************************************************************************/
 //SEND ARRAYS OF COMMAND BYTES
 void lightDisplay::sendCommandList(const uint8_t *command, uint8_t n){
     wire->beginTransmission(I2Caddr);
@@ -47,6 +51,7 @@ void lightDisplay::sendCommandList(const uint8_t *command, uint8_t n){
     wire->endTransmission();
 }
 
+/******************************************************************************/
 /*!
     @brief allocate memory for buffer and initiate screen with settings 
     @param vcc Power source for the screen affects choice for contrast
@@ -56,7 +61,7 @@ void lightDisplay::sendCommandList(const uint8_t *command, uint8_t n){
 bool lightDisplay::begin(uint8_t vcc,uint8_t address,bool periphBegin){
     uint8_t contrast;
     uint8_t comPins = 18; 
-  if ((!buffer) && !(buffer = (uint8_t *)malloc(width * ((height + 7) / 8))))return false;
+  if ((!buffer) && !(buffer = (uint8_t *)malloc(width * ((height) / 8))))return false;
     if(vcc == SSD1306_SWITCHCAPVCC){contrast = 0x7F;}
     if(periphBegin){wire->begin();}
     I2Caddr = address;
@@ -94,35 +99,44 @@ bool lightDisplay::begin(uint8_t vcc,uint8_t address,bool periphBegin){
                                             };                                          
     sendCommandList(init4, sizeof(init4));  
 
-
-for(int j = 0; j<8 ;j++){
-    sendCommand(0 & 0b0001111);
-    sendCommand( ((0>>4) & 0b00001111) | (0x10));
-    sendCommand(0xB0 | j);
-    wire->beginTransmission(I2Caddr);                                      
-    wire->write(0x40);
-    uint8_t b = 1;
-for(int i = 0; i<128 ;i++){
-    if(b >= 32){
-    wire->endTransmission();
-    wire->beginTransmission(I2Caddr);                                      
-    wire->write(0x40);b = 1;}
-    b++;
-    if(i%3){wire->write(0);}else{wire->write(0b01111110);}
-}
-wire->endTransmission();
-}
-
     TRANSACTION_END;
     return true;
 }
 
+/******************************************************************************/
+
+#ifdef __AVR__
+// Bitmask tables of 0x80>>X and ~(0x80>>X), because X>>Y is slow on AVR
+const uint8_t PROGMEM setBit[] = {0x01, 0x02, 0x04, 0x08,
+                                 0x10, 0x20, 0x40, 0x80};
+const uint8_t PROGMEM clrBit[] = {0xFE, 0xFD, 0xFB, 0xF7,
+                                  0xEF, 0xDF, 0xBF, 0x7F};
+#endif
+
+/******************************************************************************/
 
 void lightDisplay::drawPixel(uint8_t COORDX,uint8_t COORDY,uint8_t COLOR){
+    uint8_t *ptr = &buffer[COORDX];
+    if((COORDY / 8) != currentPage)return;
+    else if((COORDX >= width)||(COORDY >= height)){
+    return;
+}
+if((COORDY / 8) == this->currentPage){
+#ifdef __AVR__
+    if (COLOR){
+        *ptr |= pgm_read_byte(&setBit[COORDY & 7]);}
+    else
+      *ptr &= pgm_read_byte(&clrBit[COORDY & 7]);
+#else
+    if (COLOR)
+      *ptr |= 1 << (COORDY & 7);
+    else
+      *ptr &= ~(1 << (COORDY & 7));
+#endif
+}
 }
 
-
-
+/******************************************************************************/
 /*!
     @brief THE WORKING PRINCIPLE IS AS FOLLOWS first we checK for the screen pages we gonna NEED
     THEN we check if current page we are pointing to is a page we will need to write and if yes
@@ -133,21 +147,91 @@ void lightDisplay::drawPixel(uint8_t COORDX,uint8_t COORDY,uint8_t COLOR){
     @param ENDY   Y coordinate for the last point on line
     @param COLOR  Color of the drawn line WHITE/BLACK supported
 */
+void lightDisplay::drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t COLOR){
+    uint8_t steep = abs((Y1 - Y0)/(X1 - X0));
+    if(steep){
+        uint8_t t = X0;
+        X0 = Y0; Y0 = t;
+        t = X1;
+        X1 = Y1; Y1 = t; 
+    }
+    if(X0 > X1){
+        uint8_t t = X0;
+        X0 = X1; X1 = t;
+        t = Y0;
+        Y0 = Y1; Y1 = Y0;
+    }
+    uint8_t dy = abs(Y1 - Y0);
+    uint8_t dx = X1 - X0;
+    int8_t err = dx/2;
+    int8_t ystep;
 
-void lightDisplay::drawLine(uint8_t COORDX,uint8_t COORDY,uint8_t ENDX,uint8_t ENDY,uint8_t COLOR){
-uint8_t startPage,endPage;
-uint8_t YSTART = COORDY,YEND = ENDY;
-if(YSTART > YEND){startPage = ENDY/8;endPage = COORDY/8;YSTART = ENDY;YEND = COORDY;}
-// Default current Page is equal start Page YSTART is as is and YEND 
-if((currentPage >= startPage) || (currentPage <= endPage)){//SINCE this a middle page
-    YSTART = currentPage*8;YEND = currentPage*8 + 7;
+    if (Y0 < Y1) {
+        ystep = 1;
+    } else {
+        ystep = -1;
+    }
+
+    for (; X0 <= X1; X0++) {
+        if (steep) {
+            drawPixel(Y0, X0, COLOR);
+        } else {
+            drawPixel(X0, Y0, COLOR);
+        }
+    err -= dy;
+        if (err < 0) {
+            Y0 += ystep;
+            err += dx;
+        }
+  }
 }
-else if(currentPage == endPage){//HERE WE set the YSTART the start of our end Page and YEND remains the ENDY
-    YSTART = currentPage*8;
+/******************************************************************************/
+void lightDisplay::pageSelect(uint8_t page){
+this->currentPage = page;
 }
-// YSTART and YEND all set for the CURRENT PAGE WE ARE POINTING TO
+/******************************************************************************/
+void lightDisplay::pageDisplay(){
+    uint8_t count = width;
+    uint8_t *ptr = buffer;
 
+    sendCommand(0 & 0b0001111);
+    sendCommand( ((0>>4) & 0b00001111) | (0x10));
+    sendCommand(0xB0 | currentPage);
 
-
-
+    wire->beginTransmission(I2Caddr);
+    wire->write((uint8_t)0x40); // Co = 0, D/C = 1
+    uint16_t bytesOut = 1;
+    while (count--) {
+        if (bytesOut >= WIRE_MAX) {
+            wire->endTransmission();
+            wire->beginTransmission(I2Caddr);
+            wire->write((uint8_t)0x40); // Co = 0, D/C = 1
+            bytesOut = 1;
+        }
+        wire->write(*ptr++);
+        bytesOut++;
+    }
+    wire->endTransmission();
 }
+/******************************************************************************/
+void lightDisplay::clearPage(){
+        for(uint8_t j = 0; j < width; j++){
+            buffer[j] = 0;   
+        }
+}
+
+/******************************************************************************/
+void lightDisplay::wholeScreenClearDisplay(){
+    for(uint8_t i = 0; i < NUMOFPAGES; i++){
+        pageSelect(i);
+        clearPage();
+        pageDisplay();
+        }
+    }
+/******************************************************************************/
+
+
+
+
+
+
