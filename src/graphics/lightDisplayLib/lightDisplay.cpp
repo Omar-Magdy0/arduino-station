@@ -155,11 +155,9 @@ void lightDisplay::drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t 
         t = X1;
         X1 = Y1; Y1 = t; 
     }
+    int8_t xtep = 1;
     if(X0 > X1){
-        uint8_t t = X0;
-        X0 = X1; X1 = t;
-        t = Y0;
-        Y0 = Y1; Y1 = Y0;
+        xtep = -1;
     }
     uint8_t dy = abs(Y1 - Y0);
     uint8_t dx = X1 - X0;
@@ -172,7 +170,8 @@ void lightDisplay::drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t 
         ystep = -1;
     }
 
-    for (; X0 <= X1; X0++) {
+
+    for (; abs(X0 - X1); X0 += xtep) {
         if (steep) {
             drawPixel(Y0, X0, COLOR);
         } else {
