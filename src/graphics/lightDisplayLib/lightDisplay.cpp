@@ -61,7 +61,7 @@ void lightDisplay::sendCommandList(const uint8_t *command, uint8_t n){
 bool lightDisplay::begin(uint8_t vcc,uint8_t address,bool periphBegin){
     uint8_t contrast;
     uint8_t comPins = 18; 
-  if ((!buffer) && !(buffer = (uint8_t *)malloc(width * ((height) / 8))))return false;
+  if ((!buffer) && !(buffer = (uint8_t *)malloc(width * ((height + 7) / 8))))return false;
     if(vcc == SSD1306_SWITCHCAPVCC){contrast = 0x7F;}
     if(periphBegin){wire->begin();}
     I2Caddr = address;
@@ -155,9 +155,12 @@ void lightDisplay::drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t 
         t = X1;
         X1 = Y1; Y1 = t; 
     }
-    int8_t xtep = 1;
+
     if(X0 > X1){
-        xtep = -1;
+        uint8_t t = X0;
+        X0 = X1; X1 = t;
+        t = Y0;
+        Y0 = Y1; Y1 = t;
     }
     uint8_t dy = abs(Y1 - Y0);
     uint8_t dx = X1 - X0;
@@ -169,9 +172,21 @@ void lightDisplay::drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t 
     } else {
         ystep = -1;
     }
+    
+for(;X0 - X1; X0 += 1){
+        err -= dy;
+        if (err < 0) {
+            Y0 += ystep;
+            err += dx;
+        }
+        if (steep) {
+            if(X0/8 == currentPage)break;
+        } else {
+            if(Y0/8 == currentPage)break;
+        }
+}
 
-
-    for (; abs(X0 - X1); X0 += xtep) {
+    for (;X0 - X1; X0 += 1) {
         if (steep) {
             drawPixel(Y0, X0, COLOR);
         } else {
@@ -192,8 +207,8 @@ this->currentPage = page;
 void lightDisplay::pageDisplay(){
     uint8_t count = width;
     uint8_t *ptr = buffer;
-
-    sendCommand(0 & 0b0001111);
+    TRANSACTION_START;
+    sendCommand(0 & 0b00001111);
     sendCommand( ((0>>4) & 0b00001111) | (0x10));
     sendCommand(0xB0 | currentPage);
 
@@ -211,6 +226,7 @@ void lightDisplay::pageDisplay(){
         bytesOut++;
     }
     wire->endTransmission();
+    TRANSACTION_END;
 }
 /******************************************************************************/
 void lightDisplay::clearPage(){
@@ -228,6 +244,34 @@ void lightDisplay::wholeScreenClearDisplay(){
         }
     }
 /******************************************************************************/
+void lightDisplay::drawBitMapFullScreen(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR){
+    uint8_t xmax = X0 + WIDTH;
+    for(;X0 < xmax;X0++){
+        buffer[X0] |= pgm_read_byte(&BITMAP[X0 + currentPage*128]);
+    }
+}
+/******************************************************************************/
+void lightDisplay::drawBitMap(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR){
+    uint8_t ymax = Y0 + HEIGHT;
+    uint8_t y = 0;
+    uint8_t byte;
+    uint8_t bit;
+    for(;Y0 < ymax;Y0++,y++){if ((Y0/8) == currentPage)break;}
+    if((Y0/8) != currentPage){Serial.println("returned");return;}
+        Serial.println(y);
+
+    for(uint8_t x = 0;x < WIDTH;x++){
+        for(uint8_t i = 0;i < 8;i++,y++){
+            byte = pgm_read_byte(&BITMAP[x + (y/8)*WIDTH]);
+            if((i + Y0 > ymax))break ;
+            bit = pgm_read_byte(&setBit[i]) & (byte);
+            if(COLOR){
+            if(bit)drawPixel(X0 + x,i + Y0,LIGHTDISPWHITE);}
+            else{
+            if(!bit)drawPixel(X0 + x,i + Y0,LIGHTDISPWHITE);}
+        }
+    }
+}
 
 
 

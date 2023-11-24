@@ -5,7 +5,7 @@
 #include <Adafruit_SSD1306.h>
 
 
-extern Adafruit_SSD1306 display;
+extern Adafruit_SSD1306 disp;
 void checkForScreen();
 void MainMenuSelectRectangle();
 

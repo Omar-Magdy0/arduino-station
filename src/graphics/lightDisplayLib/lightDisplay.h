@@ -32,9 +32,10 @@ void clearPage();
 void wholeScreenClearDisplay();
 void drawPixel(uint8_t COORDX,uint8_t COORDY,uint8_t COLOR);
 void drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t COLOR);
-void drawRext(uint8_t COORDX,uint8_t COORDY,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
+void drawRect(uint8_t COORDX,uint8_t COORDY,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
 void writeText(char *text,uint8_t cursor,uint8_t COLOR);
-void drawBitMap(unsigned char *BITMAP,uint8_t COORDX,uint8_t COORDY,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
+void drawBitMap(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
+void drawBitMapFullScreen(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
 
 
 protected:

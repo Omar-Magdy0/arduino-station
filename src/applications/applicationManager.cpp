@@ -92,7 +92,7 @@ else if(clickType == APPCLOOP){APMNGCTRL |= ((1<<MMJO) | (1<<APRNNG));appFunctio
 //GRAPHICS PART ONLY OPTIMIZABLE
 
 if( (APMNGCTRL & (1<<MMJO)) || (APMNGCTRL & (1<<PGCHNG)) ){
-		display.clearDisplay();
+		disp.clearDisplay();
 		    char getty[15];
 		const char *name = menuApps[appMenuIndexer(menuIndex - 1)].getName();
     	for (uint8_t i = 0; i < 15; i++) {
@@ -113,9 +113,9 @@ if( (APMNGCTRL & (1<<MMJO)) || (APMNGCTRL & (1<<PGCHNG)) ){
 		Box1.text = getty;
 		Box1.textRectCenterer(0,42,128,20,1);
 	    Box1.textDisplaySans(WHITE,0);
-		display.drawRect(0,22,128,20,WHITE);
-	    display.drawRect(1,23,126,18,WHITE);
-	    display.display();
+		disp.drawRect(0,22,128,20,WHITE);
+	    disp.drawRect(1,23,126,18,WHITE);
+	    disp.display();
 	    APMNGCTRL &= ~(1<<MMJO);
 		APMNGCTRL &= ~(1<<PGCHNG);
 }
@@ -192,9 +192,9 @@ const unsigned char maintenanceScreen [] PROGMEM = {
 
 
 void maintenance(){
-    display.clearDisplay();
-    display.drawBitmap(0,0,maintenanceScreen,128,64,WHITE);
-    display.display();
+    disp.clearDisplay();
+    disp.drawBitmap(0,0,maintenanceScreen,128,64,WHITE);
+    disp.display();
 	if(potButtonComb() == APPCLOOP){
 //do whatever you want before closing app
 		APMNGCTRL &= ~(1<<APRNNG);
