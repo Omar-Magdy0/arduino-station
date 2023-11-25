@@ -102,7 +102,13 @@ bool lightDisplay::begin(uint8_t vcc,uint8_t address,bool periphBegin){
     TRANSACTION_END;
     return true;
 }
-
+/******************************************************************************/
+#define _Swap_uint8(a, b)\
+    {             \
+    uint8_t t = a;\
+    a = b;        \
+    b = t;        \
+    }                       
 /******************************************************************************/
 
 #ifdef __AVR__
@@ -147,21 +153,18 @@ if((COORDY / 8) == this->currentPage){
     @param ENDY   Y coordinate for the last point on line
     @param COLOR  Color of the drawn line WHITE/BLACK supported
 */
-void lightDisplay::drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t COLOR){
+void lightDisplay::bresenhamLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t COLOR){
     uint8_t steep = abs((Y1 - Y0)/(X1 - X0));
     if(steep){
-        uint8_t t = X0;
-        X0 = Y0; Y0 = t;
-        t = X1;
-        X1 = Y1; Y1 = t; 
+        _Swap_uint8(X0,Y0);
+        _Swap_uint8(X1,Y1);
     }
 
     if(X0 > X1){
-        uint8_t t = X0;
-        X0 = X1; X1 = t;
-        t = Y0;
-        Y0 = Y1; Y1 = t;
+        _Swap_uint8(X0,X1);
+        _Swap_uint8(Y0,Y1);  
     }
+    
     uint8_t dy = abs(Y1 - Y0);
     uint8_t dx = X1 - X0;
     int8_t err = dx/2;
@@ -172,8 +175,8 @@ void lightDisplay::drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t 
     } else {
         ystep = -1;
     }
-    
-for(;X0 - X1; X0 += 1){
+
+    for(;X0 <= X1; X0 += 1){
         err -= dy;
         if (err < 0) {
             Y0 += ystep;
@@ -184,9 +187,9 @@ for(;X0 - X1; X0 += 1){
         } else {
             if(Y0/8 == currentPage)break;
         }
-}
+    }
 
-    for (;X0 - X1; X0 += 1) {
+    for (;X0 <= X1; X0++) {
         if (steep) {
             drawPixel(Y0, X0, COLOR);
         } else {
@@ -198,6 +201,29 @@ for(;X0 - X1; X0 += 1){
             err += dx;
         }
   }
+}
+
+/******************************************************************************/
+void lightDisplay::Vline(uint8_t Y0,uint8_t Y1,uint8_t X,uint8_t COLOR){
+    if(Y0 > Y1){_Swap_uint8(Y0,Y1);}
+    for(;Y0 < Y1;Y0++){if(Y0/8 == currentPage)break;}
+    for(;Y0 <= Y1;Y0++){
+        drawPixel(X,Y0,COLOR);
+    }
+}
+/******************************************************************************/
+void lightDisplay::Hline(uint8_t X0,uint8_t X1,uint8_t Y,uint8_t COLOR){
+    if(X0 > X1){_Swap_uint8(X0,X1);}
+    if(Y/8 != currentPage)return;
+    for(;X0 <= X1;X0++){
+        drawPixel(X0,Y,COLOR);
+    }
+}
+/******************************************************************************/
+void lightDisplay::drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t COLOR){
+    if(X0 == X1)Vline(Y0,Y1,X0,COLOR);
+    else if(Y0 == Y1)Hline(X0,X1,Y0,COLOR);
+    else bresenhamLine(X0,Y0,X1,Y1,COLOR);
 }
 /******************************************************************************/
 void lightDisplay::pageSelect(uint8_t page){
@@ -252,23 +278,28 @@ void lightDisplay::drawBitMapFullScreen(const unsigned char BITMAP[],uint8_t X0,
 }
 /******************************************************************************/
 void lightDisplay::drawBitMap(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR){
-    uint8_t ymax = Y0 + HEIGHT;
-    uint8_t y = 0;
-    uint8_t byte;
+    uint8_t Y = 0;                          // actual Y coordinate on the screen
+    uint8_t Yrelative = 0;                  // relative Y coordinate where it is the value of Y coordinate of the buffer 
+    uint8_t byte;                           // represents the byte we are currently accessing and checking for each bit
     uint8_t bit;
-    for(;Y0 < ymax;Y0++,y++){if ((Y0/8) == currentPage)break;}
-    if((Y0/8) != currentPage){Serial.println("returned");return;}
-        Serial.println(y);
 
-    for(uint8_t x = 0;x < WIDTH;x++){
-        for(uint8_t i = 0;i < 8;i++,y++){
-            byte = pgm_read_byte(&BITMAP[x + (y/8)*WIDTH]);
-            if((i + Y0 > ymax))break ;
-            bit = pgm_read_byte(&setBit[i]) & (byte);
+    for(;Y < (Y0 + HEIGHT);Y++){if ((Y/8) == currentPage)break;}            //always update Y coordinates with ever function call
+    if((Y/8) != currentPage)return;
+                                                        //Start iterating Y coordinates and X coordinates and access bit and bytes 
+    for(;Y < (currentPage + 1)*8;Y++){
+        Yrelative = Y - Y0;
+        if(Y < Y0){continue;}                           // Skip checking the buffer if we haven't reached start of bitmap yet
+        else if(Y > (Y0 + HEIGHT)){return;}             // if we have exceeded the max height
+                                                        //Iterate X for full width with each Y iteration
+        for(uint8_t x = 0;x < WIDTH; x++){
+                                                        //Choose Byte and Bit accordingly
+            byte = pgm_read_byte(&BITMAP[x + (Yrelative/8)*WIDTH]);
+            bit = pgm_read_byte(&setBit[Yrelative&7]) & (byte);
+
             if(COLOR){
-            if(bit)drawPixel(X0 + x,i + Y0,LIGHTDISPWHITE);}
+                if(bit)drawPixel( (X0 + x), Y, LIGHTDISPWHITE);}
             else{
-            if(!bit)drawPixel(X0 + x,i + Y0,LIGHTDISPWHITE);}
+                if(!bit)drawPixel( (X0 + x), Y, LIGHTDISPWHITE);}
         }
     }
 }

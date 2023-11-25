@@ -32,16 +32,30 @@ int main(){
     if(dispS.begin()){Serial.println("SCREEN INITIALIZED");}
 
     Serial.println(globalTimeMillis);
+    for(uint8_t j = 0;j < 63;j++){
     for(uint8_t i = 0; i < NUMOFPAGES; i++){
         dispS.pageSelect(i);
         dispS.clearPage();
-        dispS.drawBitMap(BIGANT_LOGO,5,28,118,13,WHITE);
+        dispS.drawBitMap(BIGANT_LOGO,5,j,118,13,WHITE);
         dispS.pageDisplay();
         }
+        _delay_ms(100);
+    }
     Serial.println(globalTimeMillis);
 
 
     while(1){
+          Serial.println(globalTimeMillis);
+    for(uint8_t j = 0;j < 128;j++){
+    for(uint8_t i = 0; i < NUMOFPAGES; i++){
+        dispS.pageSelect(i);
+        dispS.clearPage();
+        dispS.drawBitMap(BIGANT_LOGO,j,25,118,13,WHITE);
+        dispS.pageDisplay();
+        }
+        _delay_ms(50);
+    }
+    Serial.println(globalTimeMillis);
 /*      
         atomicDebounceReEnable(); 
         if(APMNGCTRL & (1<<APRNNG)){
