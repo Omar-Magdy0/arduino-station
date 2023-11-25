@@ -22,9 +22,26 @@ const unsigned char BIGANT_LOGO [] PROGMEM = {
 };
 
 // Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 1040)
-
-
 lightDisplay dispS = lightDisplay(128,64,&Wire);
+  int i = 0;int j = 0;
+   void display1(){
+        dispS.fillCircleHelp(64,32,20,1,WHITE);
+        dispS.Vline(0,63,i,WHITE);
+        dispS.Vline(0,63,i + 10,WHITE);
+        dispS.Vline(0,63,i + 20,WHITE);
+        dispS.Vline(0,63,i + 30,WHITE);
+        dispS.Vline(0,63,i + 40,WHITE);
+        dispS.Vline(0,63,i + 50,WHITE);
+        dispS.Hline(0,127,j,WHITE);
+        dispS.Hline(0,127,j + 5,WHITE);
+        dispS.Hline(0,127,j + 10,WHITE);
+        dispS.Hline(0,127,j + 15,WHITE);
+        dispS.Hline(0,127,j + 20,WHITE);
+        dispS.Hline(0,127,j + 25,WHITE);
+   }
+
+
+
 int main(){
     clk1CountMillis(START);
     defaultBootLoader();
@@ -32,30 +49,20 @@ int main(){
     if(dispS.begin()){Serial.println("SCREEN INITIALIZED");}
 
     Serial.println(globalTimeMillis);
-    for(uint8_t j = 0;j < 63;j++){
-    for(uint8_t i = 0; i < NUMOFPAGES; i++){
-        dispS.pageSelect(i);
-        dispS.clearPage();
-        dispS.drawBitMap(BIGANT_LOGO,5,j,118,13,WHITE);
-        dispS.pageDisplay();
-        }
-        _delay_ms(100);
-    }
+    dispS.displayFunctionGroup(0,7,display1);
+    Serial.println(globalTimeMillis);
+    int sec = 1;
+    int dec = 2;
+    while(1){i+=dec;j+=sec;
+    if(j > 39)sec = -2;
+    if(j < 0)sec = 2;
+    if(i > 77)dec = -2;
+    if(i < 0)dec = 2;  
+    Serial.println(globalTimeMillis);
+    dispS.displayFunctionGroup(0,7,display1);
     Serial.println(globalTimeMillis);
 
 
-    while(1){
-          Serial.println(globalTimeMillis);
-    for(uint8_t j = 0;j < 128;j++){
-    for(uint8_t i = 0; i < NUMOFPAGES; i++){
-        dispS.pageSelect(i);
-        dispS.clearPage();
-        dispS.drawBitMap(BIGANT_LOGO,j,25,118,13,WHITE);
-        dispS.pageDisplay();
-        }
-        _delay_ms(50);
-    }
-    Serial.println(globalTimeMillis);
 /*      
         atomicDebounceReEnable(); 
         if(APMNGCTRL & (1<<APRNNG)){

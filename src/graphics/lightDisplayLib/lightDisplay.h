@@ -34,18 +34,22 @@ void drawPixel(uint8_t COORDX,uint8_t COORDY,uint8_t COLOR);
 void bresenhamLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t COLOR);
 void Hline(uint8_t X0,uint8_t X1,uint8_t Y,uint8_t COLOR);
 void Vline(uint8_t Y0,uint8_t Y1,uint8_t X,uint8_t COLOR);
-void drawLine(uint8_t X0,uint8_t X1,uint8_t Y0,uint8_t Y1,uint8_t COLOR);
-void drawRect(uint8_t COORDX,uint8_t COORDY,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
+void drawLine(uint8_t X0,uint8_t Y0,uint8_t X1,uint8_t Y1,uint8_t COLOR);
+void drawRect(uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
+void drawFillRect(uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
+void drawCircle(int16_t X0,int16_t Y0,int16_t R, uint8_t COLOR);
+void drawWeirdFillCircle(int16_t X0,int16_t Y0,int16_t R, uint8_t COLOR);
+void fillCircleHelp(int16_t X0,int16_t Y0,int16_t R,uint8_t quart,uint8_t COLOR);
 void writeText(char *text,uint8_t cursor,uint8_t COLOR);
 void drawBitMap(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
 void drawBitMapFullScreen(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
-
+void displayFunctionGroup(uint8_t startPage,uint8_t endPage,void(*function)());
 
 protected:
 uint8_t *buffer;
 TwoWire *wire;
-uint8_t width;
-uint8_t height;
+uint8_t __width;
+uint8_t __height;
 uint8_t I2Caddr;
 uint8_t currentPage;
 void sendCommand(uint8_t command);
