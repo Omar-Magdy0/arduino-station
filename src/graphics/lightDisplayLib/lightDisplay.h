@@ -39,7 +39,7 @@ void drawRect(uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
 void drawFillRect(uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
 void drawCircle(int16_t X0,int16_t Y0,int16_t R, uint8_t COLOR);
 void drawWeirdFillCircle(int16_t X0,int16_t Y0,int16_t R, uint8_t COLOR);
-void fillCircleHelp(int16_t X0,int16_t Y0,int16_t R,uint8_t quart,uint8_t COLOR);
+void fillQuartCircle(int16_t X0,int16_t Y0,int16_t R,uint8_t quart,uint8_t COLOR);
 void writeText(char *text,uint8_t cursor,uint8_t COLOR);
 void drawBitMap(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);
 void drawBitMapFullScreen(const unsigned char BITMAP[],uint8_t X0,uint8_t Y0,uint8_t WIDTH,uint8_t HEIGHT,uint8_t COLOR);

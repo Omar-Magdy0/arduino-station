@@ -25,19 +25,17 @@ const unsigned char BIGANT_LOGO [] PROGMEM = {
 lightDisplay dispS = lightDisplay(128,64,&Wire);
   int i = 0;int j = 0;
    void display1(){
-        dispS.fillCircleHelp(64,32,20,1,WHITE);
-        dispS.Vline(0,63,i,WHITE);
-        dispS.Vline(0,63,i + 10,WHITE);
-        dispS.Vline(0,63,i + 20,WHITE);
-        dispS.Vline(0,63,i + 30,WHITE);
-        dispS.Vline(0,63,i + 40,WHITE);
-        dispS.Vline(0,63,i + 50,WHITE);
-        dispS.Hline(0,127,j,WHITE);
-        dispS.Hline(0,127,j + 5,WHITE);
-        dispS.Hline(0,127,j + 10,WHITE);
-        dispS.Hline(0,127,j + 15,WHITE);
-        dispS.Hline(0,127,j + 20,WHITE);
-        dispS.Hline(0,127,j + 25,WHITE);
+        dispS.drawPixel(64,10,WHITE);
+        dispS.drawPixel(66,10,WHITE);
+        dispS.drawPixel(62,10,WHITE);
+        dispS.drawPixel(60,10,WHITE);
+        dispS.drawPixel(68,10,WHITE);
+        dispS.drawPixel(42,32,WHITE);
+        dispS.drawPixel(42,34,WHITE);
+        dispS.drawPixel(42,36,WHITE);
+        dispS.drawPixel(42,30,WHITE);
+        dispS.drawPixel(42,28,WHITE);
+        dispS.fillQuartCircle(64,32,20,0,WHITE);
    }
 
 
@@ -51,18 +49,7 @@ int main(){
     Serial.println(globalTimeMillis);
     dispS.displayFunctionGroup(0,7,display1);
     Serial.println(globalTimeMillis);
-    int sec = 1;
-    int dec = 2;
-    while(1){i+=dec;j+=sec;
-    if(j > 39)sec = -2;
-    if(j < 0)sec = 2;
-    if(i > 77)dec = -2;
-    if(i < 0)dec = 2;  
-    Serial.println(globalTimeMillis);
-    dispS.displayFunctionGroup(0,7,display1);
-    Serial.println(globalTimeMillis);
-
-
+    while(1){
 /*      
         atomicDebounceReEnable(); 
         if(APMNGCTRL & (1<<APRNNG)){

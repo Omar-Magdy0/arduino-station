@@ -324,13 +324,14 @@ void lightDisplay::drawCircle(int16_t X0,int16_t Y0,int16_t R,uint8_t COLOR){
 void lightDisplay::drawWeirdFillCircle(int16_t X0,int16_t Y0,int16_t R, uint8_t COLOR){
     for(uint8_t rx = 0; rx <= R; rx++){drawCircle(X0,Y0,rx,COLOR);}
 }
+
 /******************************************************************************/
-void lightDisplay::fillCircleHelp(int16_t X0,int16_t Y0,int16_t R,uint8_t quart,uint8_t COLOR){
+void lightDisplay::fillQuartCircle(int16_t X0,int16_t Y0,int16_t R,uint8_t quart,uint8_t COLOR){
     int16_t d = 3 - 2 * R;
     int8_t x = 0;
     int8_t y = R;
 
-    Hline(X0 + R,X0 - R ,Y0,COLOR);
+
   while (x < y) {
     if (d >= 0) {
         y--;
@@ -338,15 +339,37 @@ void lightDisplay::fillCircleHelp(int16_t X0,int16_t Y0,int16_t R,uint8_t quart,
     }else 
         d = d + 4 * x + 6; 
     x++;
+    
+    switch (quart)
+    {
+    case 0:
+        Hline(X0 - x,X0 - 1,Y0 - y,COLOR);
+        Hline(X0 - y,X0 - 1,Y0 - x,COLOR);
+        break;
+    
+    case 1:
+        Hline(X0 + x,X0 + 1,Y0 - y,COLOR);
+        Hline(X0 + y,X0 + 1,Y0 - x,COLOR);
+        break;
 
-    Hline(X0 - x,X0,Y0 - y,COLOR);
-    Hline(X0 - y,X0,Y0 - x,COLOR);
-    Hline(X0 + x,X0,Y0 - y,COLOR);
-    Hline(X0 + y,X0,Y0 - x,COLOR);
-    Hline(X0 - x,X0,Y0 + y,COLOR);
-    Hline(X0 - y,X0,Y0 + x,COLOR);
-    Hline(X0 + x,X0,Y0 + y,COLOR);
-    Hline(X0 + y,X0,Y0 + x,COLOR);
+    case 2:
+        Hline(X0 + x,X0 + 1,Y0 + y,COLOR);
+        Hline(X0 + y,X0 + 1,Y0 + x,COLOR);
+        break;
+    
+    case 3:
+        Hline(X0 - x,X0 - 1,Y0 + y,COLOR);
+        Hline(X0 - y,X0 - 1,Y0 + x,COLOR);
+        break;
+
+    case 4:
+        Hline(X0 + x,X0 + 1,Y0 - y,COLOR);
+        Hline(X0 + y,X0 + 1,Y0 - x,COLOR);
+        break;
+
+    default:
+        break;
+    }
   }
 }
 /******************************************************************************/
