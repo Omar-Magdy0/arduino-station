@@ -1,12 +1,19 @@
 #include "display.h"
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
+#include "applicationManager.h"
 
 
 #define screenWidth 128
 #define screenHeight 64
 #define reset -1
-Adafruit_SSD1306 disp(screenWidth, screenHeight, &Wire, reset);
 
-void checkForScreen(){if(!disp.begin(SSD1306_SWITCHCAPVCC, 0x3c)){for(;;);}else{disp.clearDisplay();}}
+lightDisplay Screen = lightDisplay(screenWidth,screenHeight,&Wire);
+void screenInitialize(){
+    if(Screen.begin(SSD1306_SWITCHCAPVCC,0x3C,true))
+        return;
+    else{
+        Serial.println("screen Failed");
+        while(1);
+    }
+}
+
 

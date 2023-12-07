@@ -1,9 +1,10 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
-#include <Arduino.h>
 #include "display.h"
 #include "pin_dynamics.h"
 #include <avr/pgmspace.h>
+#include "PeripheralsCustom/PeripheralsCustom.h"
+#include "HardwareSerial.h"
 
 
 class application{
@@ -22,7 +23,6 @@ void(*getAppMainFunc())(){return appLoopingFunction;}
 #define END 0
 extern void clk1CountMillis(uint8_t command);
 extern application menuApps[];
-extern textBox Box1;
 extern void(*appFunction)();
 extern uint8_t APMNGCTRL;
     #define MNUI0 	0

@@ -72,8 +72,6 @@ int8_t appMenuIndexer(int8_t num){
     return num;
 }
 
-textBox Box1 = textBox("",0,0);
-
 void applicationManager(){
 int8_t menuIndex = 0b000000;
 menuIndex |= APMNGCTRL & ((1<<MNUI3) | (1<<MNUI2) | (1<<MNUI1) | (1<<MNUI0)); 
@@ -92,30 +90,17 @@ else if(clickType == APPCLOOP){APMNGCTRL |= ((1<<MMJO) | (1<<APRNNG));appFunctio
 //GRAPHICS PART ONLY OPTIMIZABLE
 
 if( (APMNGCTRL & (1<<MMJO)) || (APMNGCTRL & (1<<PGCHNG)) ){
-		disp.clearDisplay();
 		    char getty[15];
 		const char *name = menuApps[appMenuIndexer(menuIndex - 1)].getName();
     	for (uint8_t i = 0; i < 15; i++) {
     	getty[i] = pgm_read_byte(&name[i]);}
-		Box1.text = getty;
-		Box1.textRectCenterer(0,2,128,20,1);
-		Box1.textDisplaySans(WHITE,0);
 		name = menuApps[appMenuIndexer(menuIndex)].getName();
     	for (uint8_t i = 0; i < 15; i++) {
     	getty[i] = pgm_read_byte(&name[i]);}
-		Box1.text = getty;
 		Serial.println(menuIndex);
-		Box1.textRectCenterer(0,22,128,20,1);
-	    Box1.textDisplaySans(WHITE,0);
 		name = menuApps[appMenuIndexer(menuIndex + 1)].getName();
     	for (uint8_t i = 0; i < 15; i++) {
     	getty[i] = pgm_read_byte(&name[i]);}
-		Box1.text = getty;
-		Box1.textRectCenterer(0,42,128,20,1);
-	    Box1.textDisplaySans(WHITE,0);
-		disp.drawRect(0,22,128,20,WHITE);
-	    disp.drawRect(1,23,126,18,WHITE);
-	    disp.display();
 	    APMNGCTRL &= ~(1<<MMJO);
 		APMNGCTRL &= ~(1<<PGCHNG);
 }
@@ -191,9 +176,6 @@ const unsigned char maintenanceScreen [] PROGMEM = {
 };
 
 void maintenance(){
-    disp.clearDisplay();
-    disp.drawBitmap(0,0,maintenanceScreen,128,64,WHITE);
-    disp.display();
 	if(potButtonComb() == APPCLOOP){
 //do whatever you want before closing app
 		APMNGCTRL &= ~(1<<APRNNG);

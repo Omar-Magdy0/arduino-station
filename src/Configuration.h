@@ -20,7 +20,10 @@ const char appName4[] PROGMEM = "3DFilament";
 const char appName5[] PROGMEM = "Hot Air Gun";
 
 
+
 const char *appNameslist[4] = {appName1,appName2,appName3,appName4};
+
+
 #define appMenuSize 4
 #define App1 application(appNameslist[0],maintenance)
 #define App2 application(appNameslist[1],maintenance)
@@ -37,6 +40,10 @@ App4,
 //App5,
 //App6,
 };
+
+
+
+
 
 
 #endif
