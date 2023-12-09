@@ -6,7 +6,6 @@
 
 #pragma GCC optimize ("-O3")
 
-
 int main(){
 	  defaultBootLoader();
     while(1){

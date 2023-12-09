@@ -5,6 +5,7 @@
 #include <avr/pgmspace.h>
 #include "PeripheralsCustom/PeripheralsCustom.h"
 #include "HardwareSerial.h"
+#include <util/delay.h>
 
 
 class application{

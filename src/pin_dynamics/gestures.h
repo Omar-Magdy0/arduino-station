@@ -1,7 +1,6 @@
 #ifndef GESTURES_H
 #define GESTURES_H
 
-#include <Arduino.h>
 #include "pin_dynamics.h"
 
 extern volatile int8_t PCINTMEM0;
@@ -17,8 +16,10 @@ extern volatile int8_t PCINTMEM0;
 extern volatile int8_t BTNCNTRL;
   #define CHGNUM0 0
   #define CHGNUM1 1
-  #define CHANGE1 2
-  #define CHANGE2 3 
+  #define CHANGE0 2
+  #define CHANGE1 3 
+  #define POTRL0  4
+  #define POTRL1  5
   #define DBNCPSD 7
 
 extern uint16_t debounceStartTime;
@@ -33,21 +34,21 @@ extern volatile uint16_t lastChangeTime;
 //INLINE FUNCTION
 #define PCINT5FUNCTION
 inline void PCINT5FUNC(){
-      if(!(BTNCNTRL & (1<<CHANGE1))){
+      if(!(BTNCNTRL & (1<<CHANGE0))){
         PCMSK0 &= ~(1 << PCINT5);
-        BTNCNTRL |= ( 1 << CHANGE1 );
+        BTNCNTRL |= ( 1 << CHANGE0 );
         lastChangeTime = globalTimeMillis;
         return;
       }  
-      else if(!(BTNCNTRL & (1<<CHANGE2))){
+      else if(!(BTNCNTRL & (1<<CHANGE1))){
         PCMSK0 &= ~(1 << PCINT5);
-        BTNCNTRL |= ( 1 << CHANGE2 );
+        BTNCNTRL |= ( 1 << CHANGE1 );
         lastChangeTime = globalTimeMillis;
         return;
       }
       else{
         PCMSK0 &= ~(1 << PCINT5);
-        BTNCNTRL &= ~((1<<CHANGE1) | (1<<CHANGE2));
+        BTNCNTRL &= ~((1<<CHANGE0) | (1<<CHANGE1));
         BTNCNTRL |= ((1<<CHGNUM1) | (1<<CHGNUM0));
         return;
       }

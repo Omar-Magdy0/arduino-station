@@ -327,7 +327,9 @@ volatile int8_t BTNCNTRL;
   #define CHGNUM0 0
   #define CHGNUM1 1
   #define CHANGE1 2
-  #define CHANGE2 3 
+  #define CHANGE2 3
+  #define POTRL0  4
+  #define POTRL1  5 
   #define DBNCPSD 7
 
 uint16_t debounceStartTime;

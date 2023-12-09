@@ -3,6 +3,65 @@
 
 
 
+uint8_t lastNumOfClicks = 0;
+//UPDATES UI according to clicks or POT part change
+void controlUI(uint16_t potReading){
+  //PART TO GET THE CURRENT NUM OF CLICKS
+	uint8_t numOfClicks = 0;
+    if((BTNCNTRL & (1<<CHANGE1))){
+        numOfClicks = (1<<CHANGE1);
+    }
+    else if(BTNCNTRL & (1<<CHANGE0)){
+        numOfClicks = (1<<CHANGE0);
+    }
+    numOfClicks >>= 2;
+  
+    //PART TO GET THE CURRENT POT READING PART AND COMPARE TO LAST
+    uint8_t currentPotReadPart = (potReading/342) + 1;
+    //UPDATE LAST POT READING Part BITS
+    uint8_t lastPotReadPart = (BTNCNTRL & (1<<POTRL0)) | (BTNCNTRL & (1<<POTRL1)) ;
+    lastPotReadPart >>= 4;
+
+  /*****************************************************************/
+  // Lambda Functions Part
+  //Pot part update function
+    auto potReadPartSelect = [&currentPotReadPart,&numOfClicks](){
+        Screen.clearPage(BLACK);
+        Screen.drawRect((42*(currentPotReadPart - 1) + 1),0,42,8,WHITE);
+        if(numOfClicks)
+            Screen.drawFillRect((42*currentPotReadPart - 1) + 3,2,numOfClicks*19,4,WHITE);
+  };
+
+  //Button CLICK update function
+    auto clickFeedback = [&numOfClicks,&lastPotReadPart](){
+        Screen.clearPage(BLACK);
+        Screen.drawRect((42*(lastPotReadPart - 1) + 1),0,42,8,WHITE);
+        if(numOfClicks)
+            Screen.drawFillRect((42*(lastPotReadPart - 1) + 3),2,numOfClicks*19,4,WHITE);
+    };
+    /*****************************************************************/
+
+  //if POT part changes
+    if(lastPotReadPart != currentPotReadPart){
+        lastPotReadPart = currentPotReadPart;
+        BTNCNTRL &= ~((1<<POTRL0) | (1<<POTRL1));
+        BTNCNTRL |= (lastPotReadPart<<4); 
+        Screen.displayFunctionGroup(0,1,potReadPartSelect);
+    }  
+  
+    //if CLICK part changes
+
+    if(lastNumOfClicks != numOfClicks){
+        lastNumOfClicks = numOfClicks;
+        Screen.displayFunctionGroup(0,1,clickFeedback);
+    }
+}
+
+
+
+
+
+
 // PIN INTERRUPT VECTORS
 
 //PCINT0-PCINT7 CHANGE VECTOR

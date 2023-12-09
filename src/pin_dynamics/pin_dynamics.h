@@ -5,6 +5,8 @@
 #include <math.h>
 #include <avr/interrupt.h>
 #include "gestures.h"
+#include <HardwareSerial.h>
+#include "display.h"
 
 
 
@@ -27,8 +29,11 @@ extern volatile uint8_t  allRemainingFract;
 #define reserved3 32
 #define APPCLOOP  33
 
+void controlUI(uint16_t potReading);
+
 
 //INLINE FUNCTIONS DEFINITIONS
+
 
 //READ POTENTIOMETER VALUE
 inline uint16_t readPot(){
@@ -40,15 +45,15 @@ inline uint16_t readPot(){
 }
 
 //FUNCTION TO READ POTENTIOMETER VALUE AND LAST BUTTON ACTION AND MAKE A COMBOOO!!
-inline uint8_t potButtonComb(){
-ADCSRA |= (1<<ADSC);
-if((BTNCNTRL & (1<<CHGNUM0)) | (BTNCNTRL & (1<<CHGNUM1))){
-uint8_t cont = floor(readPot()/342) + 1;
-uint8_t numClicks = ((BTNCNTRL & (1<<CHGNUM0)) | (BTNCNTRL & (1<<CHGNUM1)));
-BTNCNTRL &= ~((1<<CHGNUM0) | (1<<CHGNUM1));
-return (numClicks + cont*10);
-}
-return 0;
+inline uint8_t potButtonComb(uint16_t potReading){
+  ADCSRA |= (1<<ADSC);
+  if((BTNCNTRL & (1<<CHGNUM0)) | (BTNCNTRL & (1<<CHGNUM1))){
+    uint8_t potReadingPart = (potReading/342) + 1;
+    uint8_t numClicks = ((BTNCNTRL & (1<<CHGNUM0)) | (BTNCNTRL & (1<<CHGNUM1)));
+    BTNCNTRL &= ~((1<<CHGNUM0) | (1<<CHGNUM1));
+    return (numClicks + potReadingPart*10);
+  }
+  return 0;
 }
 
 //DEBOUNCE FUNCTION
@@ -62,11 +67,11 @@ inline void atomicDebounceReEnable(){
       return;
     }
   }
-  if(BTNCNTRL & (1<<CHANGE1)){
+  if(BTNCNTRL & (1<<CHANGE0)){
     if((globalTimeMillis - lastChangeTime) >= CHANGETMT){
-      if(BTNCNTRL & (1<<CHANGE2)){BTNCNTRL |= (1<<CHGNUM1);}
+      if(BTNCNTRL & (1<<CHANGE1)){BTNCNTRL |= (1<<CHGNUM1);}
       else{BTNCNTRL |= (1<<CHGNUM0);}
-      BTNCNTRL &= ~((1 << CHANGE1) | (1 << CHANGE2));
+      BTNCNTRL &= ~((1 << CHANGE0) | (1 << CHANGE1));
     }
   }
 }
